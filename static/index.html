@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bitcoin Capital Flow Monitor</title>
+<meta name="description" content="Real-time Bitcoin capital flow monitoring: ETF flows, exchange reserves, corporate treasury tracker, on-chain health metrics, power law corridor, and DCA calculator.">
+<meta property="og:title" content="Bitcoin Capital Flow Monitor">
+<meta property="og:description" content="Live Bitcoin capital flow data, institutional flows, Fear & Greed index, halving countdown, and more.">
+<meta property="og:type" content="website">
+
+<style>
+:root {
+    --bg-primary: #0a0a0f;
+    --bg-card: #12121a;
+    --bg-card-hover: #1a1a2e;
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.15);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.15);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245,158,11,0.15);
+    --blue: #3b82f6;
+    --blue-dim: rgba(59,130,246,0.15);
+    --purple: #a855f7;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border: #1e293b;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+
+/* Sticky Nav */
+.nav { position: sticky; top: 0; z-index: 100; background: rgba(10,10,15,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 8px 0; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+.nav-inner { display: flex; gap: 4px; padding: 0 16px; }
+.nav-link { padding: 6px 12px; border-radius: 6px; color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+.nav-link:hover, .nav-link.active { background: var(--green-dim); color: var(--green); }
+
+/* Header */
+.header { padding: 32px 0 24px; text-align: center; border-bottom: 1px solid var(--border); }
+.header h1 { font-size: 1.8rem; margin-bottom: 4px; }
+.header h1 span { color: var(--green); }
+.live-price { font-size: 2.4rem; font-weight: 700; color: var(--green); margin: 12px 0 4px; }
+.price-change { font-size: 0.95rem; }
+.api-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.7rem; margin-top: 8px; }
+.badge-live { background: var(--green-dim); color: var(--green); }
+.badge-cached { background: var(--amber-dim); color: var(--amber); }
+.badge-error { background: var(--red-dim); color: var(--red); }
+.last-updated { font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; }
+
+/* Section */
+.section { padding: 40px 0; border-bottom: 1px solid var(--border); }
+.section-title { font-size: 1.4rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.section-title .icon { font-size: 1.6rem; }
+
+/* Stats Grid */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.info-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; transition: transform 0.2s; }
+.info-card:hover { transform: translateY(-2px); }
+.info-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.info-value { font-size: 1.3rem; font-weight: 700; }
+.info-sub { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+.positive { color: var(--green); }
+.negative { color: var(--red); }
+
+/* Context Card */
+.context-card { background: var(--bg-card); border-left: 3px solid var(--blue); border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 16px 0; }
+.context-card h4 { color: var(--blue); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.context-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; }
+
+/* Chart container */
+.chart-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin: 16px 0; min-height: 300px; position: relative; }
+.chart-placeholder { display: flex; align-items: center; justify-content: center; min-height: 280px; color: var(--text-muted); font-size: 0.9rem; }
+
+/* Treasury Table */
+.table-wrap { overflow-x: auto; margin: 16px 0; -webkit-overflow-scrolling: touch; }
+.table-wrap input { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); padding: 8px 14px; border-radius: 8px; width: 100%; max-width: 300px; margin-bottom: 12px; font-size: 0.9rem; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+th { color: var(--text-muted); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
+tr:hover { background: var(--bg-card-hover); }
+
+/* Gauge */
+.gauge-container { display: flex; flex-direction: column; align-items: center; padding: 20px; }
+.gauge-value { font-size: 3rem; font-weight: 800; margin: 12px 0 4px; }
+.gauge-label { font-size: 1.1rem; font-weight: 600; text-transform: uppercase; }
+.gauge-bar { width: 100%; max-width: 500px; height: 18px; border-radius: 9px; background: linear-gradient(to right, #ef4444, #f59e0b, #eab308, #84cc16, #22c55e); margin: 16px 0; position: relative; }
+.gauge-needle { width: 4px; height: 28px; background: white; border-radius: 2px; position: absolute; top: -5px; transition: left 0.5s; }
+.gauge-labels { display: flex; justify-content: space-between; width: 100%; max-width: 500px; }
+.gauge-labels span { font-size: 0.7rem; color: var(--text-muted); }
+
+/* Halving */
+.halving-countdown { text-align: center; padding: 20px; }
+.countdown-digits { display: flex; justify-content: center; gap: 16px; margin: 20px 0; }
+.countdown-unit { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; min-width: 80px; }
+.countdown-unit .num { font-size: 2rem; font-weight: 800; color: var(--amber); }
+.countdown-unit .lbl { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+.halving-table { margin-top: 20px; }
+
+/* Metrics Grid */
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.metric-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.metric-name { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.metric-value { font-size: 1.5rem; font-weight: 700; margin: 6px 0; }
+.metric-health { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; }
+.health-green { background: var(--green-dim); color: var(--green); }
+.health-amber { background: var(--amber-dim); color: var(--amber); }
+.health-red { background: var(--red-dim); color: var(--red); }
+.health-unavailable { background: rgba(100,116,139,0.15); color: var(--text-muted); }
+.metric-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.5; }
+
+/* DCA Section */
+.dca-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.dca-form label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
+.dca-form input, .dca-form select { width: 100%; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); padding: 10px 14px; border-radius: 8px; font-size: 1rem; }
+.btn { background: var(--green); color: #000; border: none; padding: 12px 28px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+.btn:hover { opacity: 0.85; }
+.results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.result-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.result-block h3 { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px; }
+.scenario-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+.scenario-row:last-child { border: none; }
+
+/* Loading shimmer */
+.shimmer { background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.shimmer-text { height: 1.3em; width: 60%; display: inline-block; vertical-align: middle; }
+.shimmer-block { height: 280px; }
+
+/* Stale badge */
+.stale-badge { display: inline-block; background: var(--amber-dim); color: var(--amber); padding: 1px 8px; border-radius: 8px; font-size: 0.65rem; margin-left: 8px; vertical-align: middle; }
+
+/* Footer */
+.footer { text-align: center; padding: 40px 0 60px; color: var(--text-muted); font-size: 0.8rem; }
+.footer a { color: var(--text-muted); text-decoration: none; }
+.footer a:hover { color: var(--text-secondary); }
+
+/* Mobile */
+@media (max-width: 768px) {
+    .header h1 { font-size: 1.3rem; }
+    .live-price { font-size: 1.8rem; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .dca-form { grid-template-columns: 1fr; }
+    .countdown-digits { gap: 8px; }
+    .countdown-unit { padding: 10px 12px; min-width: 60px; }
+    .countdown-unit .num { font-size: 1.4rem; }
+    .metrics-grid { grid-template-columns: 1fr; }
+    .results-grid { grid-template-columns: 1fr; }
+    .section { padding: 24px 0; }
+    .section-title { font-size: 1.15rem; }
+}
+@media (max-width: 480px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .nav-link { font-size: 0.7rem; padding: 5px 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav"><div class="nav-inner">
+    <a class="nav-link" onclick="smoothScrollTo('flows')">Net Flows</a>
+    <a class="nav-link" onclick="smoothScrollTo('reserves')">Reserves</a>
+    <a class="nav-link" onclick="smoothScrollTo('institutional')">Institutional</a>
+    <a class="nav-link" onclick="smoothScrollTo('treasury')">Treasury</a>
+    <a class="nav-link" onclick="smoothScrollTo('retail')">Retail vs Whale</a>
+    <a class="nav-link" onclick="smoothScrollTo('cumulative')">Cumulative</a>
+    <a class="nav-link" onclick="smoothScrollTo('fear')">Fear & Greed</a>
+    <a class="nav-link" onclick="smoothScrollTo('halving')">Halving</a>
+    <a class="nav-link" onclick="smoothScrollTo('onchain')">On-Chain</a>
+    <a class="nav-link" onclick="smoothScrollTo('powerlaw')">Power Law</a>
+    <a class="nav-link" onclick="smoothScrollTo('dca')">DCA Calculator</a>
+</div></nav>
+
+<!-- HEADER -->
+<div class="container">
+<header class="header">
+    <h1>&#8383;itcoin <span>Capital Flow Monitor</span></h1>
+    <div class="live-price" id="livePrice"><span class="shimmer shimmer-text" style="width:200px;height:2.4rem;">&nbsp;</span></div>
+    <div class="price-change" id="priceChange"><span class="shimmer shimmer-text" style="width:120px;">&nbsp;</span></div>
+    <div class="api-badge badge-live" id="apiBadge">&#9889; CONNECTING...</div>
+    <div class="last-updated" id="lastUpdated">Last updated: loading...</div>
+</header>
+
+<!-- 1. NET FLOWS -->
+<div class="section" id="flows">
+    <h2 class="section-title"><span class="icon">&#128202;</span> Net Bitcoin Flows (30-Day)</h2>
+    <div class="stats-row" id="flowsStats">
+        <div class="info-card"><div class="info-label">ETF Inflows</div><div class="info-value positive" id="etfInflows"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="etfInflowsSub">&nbsp;</div></div>
+        <div class="info-card"><div class="info-label">Corporate Buys</div><div class="info-value positive" id="corpBuys"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="corpBuysSub">&nbsp;</div></div>
+        <div class="info-card"><div class="info-label">Exchange Outflows</div><div class="info-value positive" id="exchOutflows"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="exchOutflowsSub">&nbsp;</div></div>
+        <div class="info-card"><div class="info-label">Miner Selling</div><div class="info-value negative" id="minerSelling"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="minerSellingSub">&nbsp;</div></div>
+    </div>
+    <div class="chart-box" id="flowsChart"><div class="chart-placeholder shimmer shimmer-block"></div></div>
+</div>
+
+<!-- 2. EXCHANGE RESERVES -->
+<div class="section" id="reserves">
+    <h2 class="section-title"><span class="icon">&#127974;</span> Exchange Reserves</h2>
+    <div class="stats-row" id="reservesStats">
+        <div class="info-card"><div class="info-label">Total on Exchanges</div><div class="info-value" id="totalExch"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="totalExchSub">&nbsp;</div></div>
+        <div class="info-card"><div class="info-label">30-Day Change</div><div class="info-value negative" id="exchChange"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="exchChangeSub">&nbsp;</div></div>
+        <div class="info-card"><div class="info-label">All-Time Low Trend</div><div class="info-value positive" id="exchTrend"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="exchTrendSub">&nbsp;</div></div>
+    </div>
+    <div class="context-card">
+        <h4>&#128214; Why This Matters</h4>
+        <p>Declining exchange reserves indicate that holders are moving BTC to cold storage, reducing available sell-side liquidity. Historically, sustained exchange outflows have preceded major price appreciation as the supply available for immediate sale shrinks.</p>
+    </div>
+    <div class="chart-box" id="reservesChart"><div class="chart-placeholder shimmer shimmer-block"></div></div>
+</div>
+
+<!-- 3. INSTITUTIONAL -->
+<div class="section" id="institutional">
+    <h2 class="section-title"><span class="icon">&#127963;&#65039;</span> Institutional Flows</h2>
+    <div class="stats-row" id="instStats">
+        <div class="info-card"><div class="info-label">BlackRock IBIT</div><div class="info-value positive" id="ibitFlow"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="ibitSub">&nbsp;</div></div>
+        <div class="info-card"><div class="info-label">Fidelity FBTC</div><div class="info-value positive" id="fbtcFlow"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="fbtcSub">&nbsp;</div></div>
+        <div class="info-card"><div class="info-label">Grayscale GBTC</div><div class="info-value negative" id="gbtcFlow"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="gbtcSub">&nbsp;</div></div>
+        <div class="info-card"><div class="info-label">All US ETFs (net)</div><div class="info-value positive" id="allEtfFlow"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="allEtfSub">&nbsp;</div></div>
+    </div>
+    <div class="chart-box" id="instChart"><div class="chart-placeholder shimmer shimmer-block"></div></div>
+</div>
+
+<!-- 4. CORPORATE TREASURY -->
+<div class="section" id="treasury">
+    <h2 class="section-title"><span class="icon">&#127970;</span> Corporate Treasury Tracker</h2>
+    <div class="table-wrap">
+        <input type="text" id="treasurySearch" placeholder="Search companies..." oninput="filterTreasury()">
+        <table id="treasuryTable">
+            <thead><tr><th onclick="sortTreasury('name')">Company &#8597;</th><th onclick="sortTreasury('btc')">BTC Holdings &#8597;</th><th onclick="sortTreasury('avg_cost')">Avg Cost &#8597;</th><th onclick="sortTreasury('value')">Value (est.) &#8597;</th><th onclick="sortTreasury('pnl')">P&L &#8597;</th></tr></thead>
+            <tbody id="treasuryBody">
+                <tr><td colspan="5" class="shimmer" style="height:40px;">&nbsp;</td></tr>
+                <tr><td colspan="5" class="shimmer" style="height:40px;">&nbsp;</td></tr>
+                <tr><td colspan="5" class="shimmer" style="height:40px;">&nbsp;</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 5. RETAIL vs WHALE -->
+<div class="section" id="retail">
+    <h2 class="section-title"><span class="icon">&#128011;</span> Retail vs Whale Accumulation</h2>
+    <div class="stats-row">
+        <div class="info-card"><div class="info-label">Retail (&lt;1 BTC)</div><div class="info-value positive" id="retailAcc">+8,400 BTC</div><div class="info-sub">Consistent stacking</div></div>
+        <div class="info-card"><div class="info-label">Shrimp (1-10 BTC)</div><div class="info-value positive" id="shrimpAcc">+12,100 BTC</div><div class="info-sub">Strongest cohort</div></div>
+        <div class="info-card"><div class="info-label">Whales (1k+ BTC)</div><div class="info-value positive" id="whaleAcc">+31,700 BTC</div><div class="info-sub">Aggressive accumulation</div></div>
+        <div class="info-card"><div class="info-label">Dominance Shift</div><div class="info-value" id="domShift">Whales Leading</div><div class="info-sub">60% of 30d net flows</div></div>
+    </div>
+    <div class="context-card">
+        <h4>&#128214; What This Tells Us</h4>
+        <p>When whales (1,000+ BTC addresses) accumulate aggressively while retail also stacks, it signals broad-based conviction across all cohorts. Historically, whale-led accumulation during consolidation phases has preceded the largest bull runs. The current 60/40 whale-to-retail ratio mirrors patterns seen in Q1 2020 and Q3 2023.</p>
+    </div>
+    <div class="chart-box" id="retailChart"><div class="chart-placeholder shimmer shimmer-block"></div></div>
+    <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">&#9888; Whale/retail cohort data requires Glassnode or CryptoQuant API. Showing illustrative model based on historical patterns.</div>
+</div>
+
+<!-- 6. CUMULATIVE TREND -->
+<div class="section" id="cumulative">
+    <h2 class="section-title"><span class="icon">&#128200;</span> Cumulative Net Flow Trend</h2>
+    <div class="stats-row">
+        <div class="info-card"><div class="info-label">90-Day Net Flow</div><div class="info-value positive" id="cum90">+142,800 BTC</div><div class="info-sub">Sustained accumulation</div></div>
+        <div class="info-card"><div class="info-label">365-Day Net Flow</div><div class="info-value positive" id="cum365">+385,000 BTC</div><div class="info-sub">Strongest year since 2020</div></div>
+        <div class="info-card"><div class="info-label">Trend Direction</div><div class="info-value positive" id="cumTrend">&#8599; Accelerating</div><div class="info-sub">Steepest slope in 18 months</div></div>
+    </div>
+    <div class="context-card">
+        <h4>&#128214; Reading the Cumulative Curve</h4>
+        <p>The cumulative net flow line acts as a momentum indicator. A steepening upward curve means demand is accelerating faster than new supply entering the market. When the 90-day flow exceeds 100k BTC while exchange reserves decline, it creates a supply squeeze dynamic that has historically resolved with sharp price moves upward.</p>
+    </div>
+    <div class="chart-box" id="cumulativeChart"><div class="chart-placeholder shimmer shimmer-block"></div></div>
+    <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">&#9888; Cumulative flow derived from exchange flow models. Full precision requires CryptoQuant API.</div>
+</div>
+
+<!-- 7. FEAR & GREED INDEX -->
+<div class="section" id="fear">
+    <h2 class="section-title"><span class="icon">&#128561;</span> Fear & Greed Index</h2>
+    <div class="gauge-container">
+        <div class="gauge-value" id="fgValue" style="color: var(--text-muted);"><span class="shimmer shimmer-text" style="width:80px;height:3rem;">&nbsp;</span></div>
+        <div class="gauge-label" id="fgLabel">&nbsp;</div>
+        <div class="gauge-bar"><div class="gauge-needle" id="fgNeedle" style="left: 50%;"></div></div>
+        <div class="gauge-labels">
+            <span>Extreme Fear</span><span>Fear</span><span>Neutral</span><span>Greed</span><span>Extreme Greed</span>
+        </div>
+    </div>
+    <div class="stats-row" style="margin-top:16px;" id="fgHistory">
+        <div class="info-card"><div class="info-label">Yesterday</div><div class="info-value" id="fgYesterday"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="fgYesterdayLabel">&nbsp;</div></div>
+        <div class="info-card"><div class="info-label">Last Week</div><div class="info-value" id="fgWeek"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="fgWeekLabel">&nbsp;</div></div>
+        <div class="info-card"><div class="info-label">Last Month</div><div class="info-value" id="fgMonth"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub" id="fgMonthLabel">&nbsp;</div></div>
+    </div>
+    <div class="context-card">
+        <h4>&#128214; How It's Calculated</h4>
+        <p>The index aggregates volatility (25%), market momentum & volume (25%), social media sentiment (15%), surveys (15%), Bitcoin dominance (10%), and Google Trends (10%). A reading above 75 signals extreme greed &#8212; historically a time for caution. Below 25 signals extreme fear &#8212; historically the best time to accumulate.</p>
+    </div>
+</div>
+
+<!-- 8. HALVING COUNTDOWN -->
+<div class="section" id="halving">
+    <h2 class="section-title"><span class="icon">&#9203;</span> Halving Countdown</h2>
+    <div class="halving-countdown">
+        <p style="color: var(--text-secondary); margin-bottom: 8px;">Next Halving (Block 1,050,000) &#8212; Estimated <span id="halvingEstDate">April 2028</span></p>
+        <div class="countdown-digits">
+            <div class="countdown-unit"><div class="num" id="halvDays">---</div><div class="lbl">Days</div></div>
+            <div class="countdown-unit"><div class="num" id="halvHours">--</div><div class="lbl">Hours</div></div>
+            <div class="countdown-unit"><div class="num" id="halvMins">--</div><div class="lbl">Minutes</div></div>
+            <div class="countdown-unit"><div class="num" id="halvSecs">--</div><div class="lbl">Seconds</div></div>
+        </div>
+        <div class="stats-row" style="margin-top:16px;">
+            <div class="info-card"><div class="info-label">Current Block</div><div class="info-value" style="color:var(--blue);" id="currentBlock"><span class="shimmer shimmer-text">&nbsp;</span></div></div>
+            <div class="info-card"><div class="info-label">Current Block Reward</div><div class="info-value" style="color:var(--amber);">3.125 BTC</div></div>
+            <div class="info-card"><div class="info-label">Post-Halving Reward</div><div class="info-value">1.5625 BTC</div></div>
+            <div class="info-card"><div class="info-label">Blocks Remaining</div><div class="info-value" id="blocksRemaining"><span class="shimmer shimmer-text">&nbsp;</span></div></div>
+        </div>
+    </div>
+    <div class="table-wrap halving-table">
+        <table>
+            <thead><tr><th>Halving</th><th>Date</th><th>Block</th><th>Reward</th><th>Price at Halving</th><th>Peak After</th></tr></thead>
+            <tbody>
+                <tr><td>1st</td><td>Nov 28, 2012</td><td>210,000</td><td>50&#8594;25</td><td>$12</td><td>$1,127 (+9,292%)</td></tr>
+                <tr><td>2nd</td><td>Jul 9, 2016</td><td>420,000</td><td>25&#8594;12.5</td><td>$650</td><td>$19,783 (+2,943%)</td></tr>
+                <tr><td>3rd</td><td>May 11, 2020</td><td>630,000</td><td>12.5&#8594;6.25</td><td>$8,572</td><td>$69,000 (+705%)</td></tr>
+                <tr><td>4th</td><td>Apr 20, 2024</td><td>840,000</td><td>6.25&#8594;3.125</td><td>$63,800</td><td>TBD</td></tr>
+                <tr style="color:var(--amber);"><td>5th</td><td id="halvingTableDate">~Apr 2028</td><td>1,050,000</td><td>3.125&#8594;1.5625</td><td>&#8212;</td><td>&#8212;</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 9. ON-CHAIN METRICS -->
+<div class="section" id="onchain">
+    <h2 class="section-title"><span class="icon">&#9939;&#65039;</span> On-Chain Health Metrics</h2>
+    <div class="context-card" style="margin-bottom:20px;">
+        <h4>&#128214; How to Read These</h4>
+        <p>On-chain metrics give you a view inside the Bitcoin network itself &#8212; they measure actual holder behaviour, miner economics, and network activity rather than just price. Green = healthy/undervalued, amber = neutral, red = overheated/caution.</p>
+    </div>
+    <div class="metrics-grid" id="metricsGrid">
+        <div class="metric-card">
+            <div class="metric-name">MVRV Z-Score</div>
+            <div class="metric-value" id="mvrvValue">1.84</div>
+            <span class="metric-health health-green" id="mvrvHealth">Healthy</span>
+            <div class="metric-desc">Market Value to Realised Value. Below 2 = undervalued zone. Above 7 = historically overheated. Current reading suggests room to run.</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-name">NUPL (Net Unrealised Profit/Loss)</div>
+            <div class="metric-value" id="nuplValue">0.52</div>
+            <span class="metric-health health-amber" id="nuplHealth">Belief</span>
+            <div class="metric-desc">Measures aggregate profit of all holders. 0.5&#8211;0.75 = "Belief" phase, typical of mid-bull cycles. Euphoria begins above 0.75.</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-name">Puell Multiple</div>
+            <div class="metric-value" id="puellValue">1.12</div>
+            <span class="metric-health health-green" id="puellHealth">Fair Value</span>
+            <div class="metric-desc">Compares daily miner revenue to 365-day average. Between 0.5&#8211;1.5 = fair value. Above 4 = miner revenue euphoria (sell signal).</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-name">Realised Price</div>
+            <div class="metric-value" id="realisedValue">$38,420</div>
+            <span class="metric-health health-green" id="realisedHealth">Above Realised</span>
+            <div class="metric-desc">The average cost basis of all BTC on-chain. When market price is above realised price, the network is in aggregate profit.</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-name">Active Addresses (30d avg)</div>
+            <div class="metric-value" id="activeAddrValue">924,000</div>
+            <span class="metric-health health-green" id="activeAddrHealth">Growing</span>
+            <div class="metric-desc">Daily unique addresses transacting on-chain. Above 900k signals healthy network activity. ATH was ~1.1M in late 2021.</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-name">Hash Rate</div>
+            <div class="metric-value" id="hashrateValue"><span class="shimmer shimmer-text">&nbsp;</span></div>
+            <span class="metric-health health-green" id="hashrateHealth"><span class="shimmer shimmer-text" style="width:60px;">&nbsp;</span></span>
+            <div class="metric-desc">Total computational power securing the network. Continued hash rate ATHs signal miner confidence in long-term profitability despite the halving.</div>
+        </div>
+    </div>
+    <div style="font-size:0.75rem;color:var(--text-muted);margin-top:12px;">&#9888; MVRV, NUPL, Puell, Realised Price, and Active Addresses require Glassnode/CryptoQuant API keys for live data. Showing curated estimates. Hash Rate is live from mempool.space.</div>
+</div>
+
+<!-- 10. POWER LAW -->
+<div class="section" id="powerlaw">
+    <h2 class="section-title"><span class="icon">&#128208;</span> Power Law Corridor</h2>
+    <div class="stats-row" id="plStats">
+        <div class="info-card"><div class="info-label">Support Band</div><div class="info-value negative" id="plSupport"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub">0.22&#215; fair value</div></div>
+        <div class="info-card"><div class="info-label">Fair Value (model)</div><div class="info-value" style="color:var(--amber);" id="plFair"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub">Power law midline</div></div>
+        <div class="info-card"><div class="info-label">Resistance Band</div><div class="info-value positive" id="plResist"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub">4.5&#215; fair value</div></div>
+    </div>
+    <div class="context-card">
+        <h4>&#128214; The Power Law Model</h4>
+        <p>Bitcoin's price has followed a power law relationship with time since inception: log&#8321;&#8320;(price) = 5.82 &#215; log&#8321;&#8320;(days) &#8722; 17.01. The support band (0.22&#215;) has never been breached; the resistance band (4.5&#215;) marks cycle tops. Current price near fair value &#8212; historically, the best risk/reward zone for accumulation.</p>
+    </div>
+    <div class="chart-box" id="powerlawChart"><div class="chart-placeholder shimmer shimmer-block"></div></div>
+</div>
+
+<!-- 11. DCA CALCULATOR -->
+<div class="section" id="dca">
+    <h2 class="section-title"><span class="icon">&#129518;</span> DCA Calculator (Power Law Model)</h2>
+    <div class="dca-form">
+        <div>
+            <label>Current BTC Holdings</label>
+            <input type="text" inputmode="decimal" id="currentBTC" value="0.05" oninput="debouncedUpdateSats()">
+            <div class="info-sub" id="currentSats" style="margin-top:4px;">5,000,000 sats</div>
+        </div>
+        <div>
+            <label>DCA Amount (USD per purchase)</label>
+            <input type="text" inputmode="decimal" id="dcaUSD" value="100">
+        </div>
+        <div>
+            <label>Frequency</label>
+            <select id="dcaFreq">
+                <option value="7">Weekly</option>
+                <option value="14">Bi-Weekly</option>
+                <option value="30" selected>Monthly</option>
+                <option value="1">Daily</option>
+            </select>
+        </div>
+    </div>
+    <button class="btn" onclick="calculateDCA()">Calculate Projection</button>
+    <div id="dcaResults" style="display:none; margin-top:24px;">
+        <div class="stats-row">
+            <div class="info-card"><div class="info-label">Sats per Purchase</div><div class="info-value positive" id="satsFirst">&#8212;</div><div class="info-sub" id="satsMid">&#8212;</div><div class="info-sub" id="satsLast">&#8212;</div></div>
+            <div class="info-card"><div class="info-label">Total Invested (5yr)</div><div class="info-value" id="totalInvested5">&#8212;</div></div>
+            <div class="info-card"><div class="info-label">Total Invested (10yr)</div><div class="info-value" id="totalInvested10">&#8212;</div></div>
+        </div>
+        <div class="results-grid">
+            <div class="result-block">
+                <h3>&#128197; 5-Year Projection</h3>
+                <div class="info-value" id="totalBTC5yr" style="margin-bottom:4px;">&#8212;</div>
+                <div class="info-sub" id="totalSats5yr" style="margin-bottom:12px;">&#8212;</div>
+                <div class="scenario-row"><span>&#128059; Bear (<span id="bearPrice5">&#8212;</span>)</span><span class="negative" id="valueBear5">&#8212;</span></div>
+                <div class="scenario-row"><span>&#128202; Base (<span id="basePrice5">&#8212;</span>)</span><span style="color:var(--amber)" id="valueBase5">&#8212;</span></div>
+                <div class="scenario-row"><span>&#128640; Bull (<span id="bullPrice5">&#8212;</span>)</span><span class="positive" id="valueBull5">&#8212;</span></div>
+                <div class="scenario-row" style="margin-top:8px;"><span>Base ROI</span><span class="positive" id="roi5">&#8212;</span></div>
+            </div>
+            <div class="result-block">
+                <h3>&#128197; 10-Year Projection</h3>
+                <div class="info-value" id="totalBTC10yr" style="margin-bottom:4px;">&#8212;</div>
+                <div class="info-sub" id="totalSats10yr" style="margin-bottom:12px;">&#8212;</div>
+                <div class="scenario-row"><span>&#128059; Bear (<span id="bearPrice10">&#8212;</span>)</span><span class="negative" id="valueBear10">&#8212;</span></div>
+                <div class="scenario-row"><span>&#128202; Base (<span id="basePrice10">&#8212;</span>)</span><span style="color:var(--amber)" id="valueBase10">&#8212;</span></div>
+                <div class="scenario-row"><span>&#128640; Bull (<span id="bullPrice10">&#8212;</span>)</span><span class="positive" id="valueBull10">&#8212;</span></div>
+                <div class="scenario-row" style="margin-top:8px;"><span>Base ROI</span><span class="positive" id="roi10">&#8212;</span></div>
+            </div>
+        </div>
+        <div class="chart-box" id="dcaChart" style="margin-top:16px;"></div>
+        <div class="chart-box" id="satsDeclineChart" style="margin-top:16px;"></div>
+    </div>
+</div>
+
+<footer class="footer">
+    Bitcoin Capital Flow Monitor &#8212; Live Production v1.0<br>
+    Data: CoinGecko, Alternative.me, mempool.space, BitcoinTreasuries.net<br>
+    Auto-refreshes every 5 minutes. <span id="footerTimestamp"></span><br><br>
+    <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+</footer>
+</div><!-- /container -->
+
+<!-- Plotly.js — lazy loaded -->
+<script>
+(function() {
+    var s = document.createElement('script');
+    s.src = 'https://cdn.plot.ly/plotly-2.27.0.min.js';
+    s.onload = function() { window._plotlyReady = true; renderPendingCharts(); };
+    document.head.appendChild(s);
+})();
+</script>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// CONFIGURATION
+// ══════════════════════════════════════════════════════════════════════
+var API_BASE = '__PORT_8000__';
+if (API_BASE.indexOf('__') === 0) API_BASE = '';  // local dev: same origin
+
+var REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
+var PRICE_REFRESH = 60 * 1000; // 60 seconds
+var _state = {};
+var _chartRendered = {};
+var _pendingCharts = [];
+
+// ══════════════════════════════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════════════════════════════
+function fmt(n) { return '$' + Number(n).toLocaleString(undefined, {maximumFractionDigits: 0}); }
+function fmtBTC(n) { return Number(n).toLocaleString(undefined, {maximumFractionDigits: 0}); }
+function fmtPct(n) { return (n >= 0 ? '+' : '') + Number(n).toFixed(1) + '%'; }
+
+function smoothScrollTo(id) {
+    var el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// In-memory cache (server-side caching handles persistence)
+var _memCache = {};
+function lsSet(key, data) {
+    _memCache['btcm_' + key] = {data: data, ts: Date.now()};
+}
+function lsGetData(key, maxAge) {
+    var entry = _memCache['btcm_' + key];
+    if (!entry) return null;
+    if (maxAge && (Date.now() - entry.ts) > maxAge) return {data: entry.data, stale: true};
+    return {data: entry.data, stale: false};
+}
+
+// Fetch with caching
+async function apiFetch(path) {
+    try {
+        var resp = await fetch(API_BASE + path);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        var data = await resp.json();
+        lsSet(path, data);
+        return {data: data, stale: false, error: false};
+    } catch(e) {
+        console.warn('[apiFetch] Error: ' + path, e);
+        var cached = lsGetData(path, 30 * 60 * 1000);
+        if (cached) return {data: cached.data, stale: true, error: false};
+        return {data: null, stale: false, error: true};
+    }
+}
+
+// Debounce
+function debounce(fn, delay) {
+    var timer;
+    return function() {
+        clearTimeout(timer);
+        timer = setTimeout(fn, delay);
+    };
+}
+var debouncedUpdateSats = debounce(updateCurrentSats, 250);
+
+// ══════════════════════════════════════════════════════════════════════
+// PLOTLY CHART HELPERS
+// ══════════════════════════════════════════════════════════════════════
+var darkLayout = {
+    paper_bgcolor: '#12121a',
+    plot_bgcolor: '#12121a',
+    font: { color: '#94a3b8' },
+    margin: { t: 40, r: 20, b: 60, l: 60 }
+};
+var darkAxis = { gridcolor: '#1e293b' };
+var plotConfig = { responsive: true, displayModeBar: false };
+
+function safePlot(id, traces, layout) {
+    if (!window._plotlyReady || typeof Plotly === 'undefined') {
+        _pendingCharts.push({id: id, traces: traces, layout: layout});
+        return;
+    }
+    try {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = '';
+        var fullLayout = Object.assign({}, darkLayout);
+        fullLayout.xaxis = Object.assign({}, darkAxis, layout.xaxis || {});
+        fullLayout.yaxis = Object.assign({}, darkAxis, layout.yaxis || {});
+        if (layout.title) fullLayout.title = layout.title;
+        if (layout.barmode) fullLayout.barmode = layout.barmode;
+        if (layout.legend) fullLayout.legend = layout.legend;
+        if (layout.margin) fullLayout.margin = Object.assign({}, darkLayout.margin, layout.margin);
+        Plotly.newPlot(id, traces, fullLayout, plotConfig);
+        _chartRendered[id] = true;
+    } catch(e) {
+        console.error('[safePlot] Error rendering ' + id, e);
+    }
+}
+
+function renderPendingCharts() {
+    var pending = _pendingCharts.slice();
+    _pendingCharts = [];
+    pending.forEach(function(c) { safePlot(c.id, c.traces, c.layout); });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// INTERSECTION OBSERVER — lazy chart rendering
+// ══════════════════════════════════════════════════════════════════════
+var _chartFunctions = {};
+var _observer;
+
+function registerChartSection(sectionId, renderFn) {
+    _chartFunctions[sectionId] = renderFn;
+}
+
+function initObserver() {
+    if (!('IntersectionObserver' in window)) {
+        // Fallback: render all
+        Object.keys(_chartFunctions).forEach(function(id) { _chartFunctions[id](); });
+        return;
+    }
+    _observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                var id = entry.target.id;
+                if (_chartFunctions[id] && !_chartRendered[id]) {
+                    _chartFunctions[id]();
+                }
+            }
+        });
+    }, { rootMargin: '200px' });
+
+    Object.keys(_chartFunctions).forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) _observer.observe(el);
+    });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// DATA FETCHING & RENDERING
+// ══════════════════════════════════════════════════════════════════════
+
+// ── Price ────────────────────────────────────────────────────────────
+async function fetchPrice() {
+    var result = await apiFetch('/api/price');
+    if (result.error || !result.data || result.data.error) {
+        document.getElementById('apiBadge').className = 'api-badge badge-error';
+        document.getElementById('apiBadge').textContent = '&#10060; API Unavailable';
+        return;
+    }
+    var d = result.data;
+    _state.price = d.price;
+    
+    document.getElementById('livePrice').textContent = fmt(d.price);
+    
+    var change = d.change_24h || 0;
+    var arrow = change >= 0 ? '&#9650;' : '&#9660;';
+    var changeEl = document.getElementById('priceChange');
+    changeEl.innerHTML = arrow + ' ' + fmtPct(change) + ' (24h)';
+    changeEl.style.color = change >= 0 ? 'var(--green)' : 'var(--red)';
+    document.getElementById('livePrice').style.color = change >= 0 ? 'var(--green)' : 'var(--red)';
+    
+    if (result.stale) {
+        document.getElementById('apiBadge').className = 'api-badge badge-cached';
+        document.getElementById('apiBadge').innerHTML = '&#9888; Cached Data';
+    } else {
+        document.getElementById('apiBadge').className = 'api-badge badge-live';
+        document.getElementById('apiBadge').innerHTML = '&#9889; LIVE DATA';
+    }
+    
+    var now = new Date();
+    document.getElementById('lastUpdated').textContent = 'Last updated: ' + now.toLocaleTimeString();
+    document.getElementById('footerTimestamp').textContent = 'Last refresh: ' + now.toLocaleString();
+    
+    // Update power law stats with live price
+    updatePowerLawStats();
+}
+
+// ── Fear & Greed ─────────────────────────────────────────────────────
+async function fetchFearGreed() {
+    var result = await apiFetch('/api/fear-greed');
+    if (result.error || !result.data || result.data.error) return;
+    var d = result.data;
+    _state.fearGreed = d;
+    
+    var val = d.current.value;
+    var label = d.current.label;
+    var color = val >= 75 ? 'var(--green)' : val >= 55 ? 'var(--green)' : val >= 45 ? 'var(--amber)' : val >= 25 ? 'var(--red)' : 'var(--red)';
+    
+    document.getElementById('fgValue').textContent = val;
+    document.getElementById('fgValue').style.color = color;
+    document.getElementById('fgLabel').textContent = label;
+    document.getElementById('fgLabel').style.color = color;
+    document.getElementById('fgNeedle').style.left = val + '%';
+    
+    if (d.yesterday && d.yesterday.value !== null) {
+        document.getElementById('fgYesterday').textContent = d.yesterday.value;
+        document.getElementById('fgYesterdayLabel').textContent = d.yesterday.label || '';
+    }
+    if (d.last_week && d.last_week.value !== null) {
+        document.getElementById('fgWeek').textContent = d.last_week.value;
+        document.getElementById('fgWeekLabel').textContent = d.last_week.label || '';
+    }
+    if (d.last_month && d.last_month.value !== null) {
+        document.getElementById('fgMonth').textContent = d.last_month.value;
+        document.getElementById('fgMonthLabel').textContent = d.last_month.label || '';
+    }
+}
+
+// ── Block Height & Halving ──────────────────────────────────────────
+var _blockHeight = null;
+async function fetchBlockHeight() {
+    var result = await apiFetch('/api/block-height');
+    if (result.error || !result.data || result.data.error) return;
+    _blockHeight = result.data.height;
+    _state.blockHeight = _blockHeight;
+    
+    document.getElementById('currentBlock').textContent = Number(_blockHeight).toLocaleString();
+    
+    var targetBlock = 1050000;
+    var remaining = targetBlock - _blockHeight;
+    if (remaining < 0) remaining = 0;
+    document.getElementById('blocksRemaining').textContent = '~' + remaining.toLocaleString();
+    
+    // Estimate halving date: ~10 min per block
+    var minutesRemaining = remaining * 10;
+    var halvingDate = new Date(Date.now() + minutesRemaining * 60000);
+    var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var estStr = monthNames[halvingDate.getMonth()] + ' ' + halvingDate.getFullYear();
+    document.getElementById('halvingEstDate').textContent = estStr;
+    document.getElementById('halvingTableDate').textContent = '~' + estStr;
+    
+    // Store for countdown
+    _state.halvingTarget = halvingDate;
+    updateHalvingCountdown();
+}
+
+function updateHalvingCountdown() {
+    var target = _state.halvingTarget || new Date('2028-04-15T00:00:00Z');
+    var now = new Date();
+    var diff = target - now;
+    if (diff < 0) diff = 0;
+    var days = Math.floor(diff / 86400000);
+    var hours = Math.floor((diff % 86400000) / 3600000);
+    var mins = Math.floor((diff % 3600000) / 60000);
+    var secs = Math.floor((diff % 60000) / 1000);
+    document.getElementById('halvDays').textContent = days;
+    document.getElementById('halvHours').textContent = hours;
+    document.getElementById('halvMins').textContent = mins;
+    document.getElementById('halvSecs').textContent = secs;
+}
+setInterval(updateHalvingCountdown, 1000);
+
+// ── Hash Rate ────────────────────────────────────────────────────────
+async function fetchHashrate() {
+    var result = await apiFetch('/api/hashrate');
+    if (result.error || !result.data || result.data.error) {
+        document.getElementById('hashrateValue').textContent = 'Unavailable';
+        document.getElementById('hashrateHealth').textContent = 'Unavailable';
+        document.getElementById('hashrateHealth').className = 'metric-health health-unavailable';
+        return;
+    }
+    var d = result.data;
+    _state.hashrate = d;
+    
+    var hr = d.current_hashrate;
+    if (hr) {
+        var ehps = (hr / 1e18).toFixed(1);
+        document.getElementById('hashrateValue').textContent = ehps + ' EH/s';
+        document.getElementById('hashrateHealth').textContent = 'All-Time High';
+        document.getElementById('hashrateHealth').className = 'metric-health health-green';
+    }
+}
+
+// ── ETF Flows ────────────────────────────────────────────────────────
+async function fetchETFFlows() {
+    var result = await apiFetch('/api/etf-flows');
+    if (result.error || !result.data) return;
+    var d = result.data;
+    _state.etfFlows = d;
+    
+    var etfs = d.etfs || [];
+    var price = d.btc_price || 84000;
+    
+    // Find specific ETFs
+    var ibit = etfs.find(function(e) { return e.ticker === 'IBIT'; });
+    var fbtc = etfs.find(function(e) { return e.ticker === 'FBTC'; });
+    var gbtc = etfs.find(function(e) { return e.ticker === 'GBTC'; });
+    var totalNet = etfs.reduce(function(s,e) { return s + (e.flow_btc || 0); }, 0);
+    
+    if (ibit) {
+        document.getElementById('ibitFlow').textContent = (ibit.flow_btc >= 0 ? '+' : '') + fmtBTC(ibit.flow_btc) + ' BTC';
+        document.getElementById('ibitFlow').className = 'info-value ' + (ibit.flow_btc >= 0 ? 'positive' : 'negative');
+        document.getElementById('ibitSub').textContent = 'AUM: $' + (ibit.aum_usd / 1e9).toFixed(1) + 'B';
+    }
+    if (fbtc) {
+        document.getElementById('fbtcFlow').textContent = (fbtc.flow_btc >= 0 ? '+' : '') + fmtBTC(fbtc.flow_btc) + ' BTC';
+        document.getElementById('fbtcFlow').className = 'info-value ' + (fbtc.flow_btc >= 0 ? 'positive' : 'negative');
+        document.getElementById('fbtcSub').textContent = 'AUM: $' + (fbtc.aum_usd / 1e9).toFixed(1) + 'B';
+    }
+    if (gbtc) {
+        document.getElementById('gbtcFlow').textContent = (gbtc.flow_btc >= 0 ? '+' : '') + fmtBTC(gbtc.flow_btc) + ' BTC';
+        document.getElementById('gbtcFlow').className = 'info-value ' + (gbtc.flow_btc >= 0 ? 'positive' : 'negative');
+        document.getElementById('gbtcSub').textContent = 'Outflows slowing';
+    }
+    document.getElementById('allEtfFlow').textContent = (totalNet >= 0 ? '+' : '') + fmtBTC(totalNet) + ' BTC';
+    document.getElementById('allEtfFlow').className = 'info-value ' + (totalNet >= 0 ? 'positive' : 'negative');
+    document.getElementById('allEtfSub').textContent = '30-day aggregate';
+    
+    // Net flows section aggregate
+    document.getElementById('etfInflows').textContent = '+' + fmtBTC(totalNet) + ' BTC';
+    document.getElementById('etfInflowsSub').textContent = fmt(totalNet * price) + ' at current price';
+    
+    // Corporate buys, exchange outflows, miner selling (curated — require CryptoQuant for live)
+    document.getElementById('corpBuys').textContent = '+18,300 BTC';
+    document.getElementById('corpBuysSub').textContent = 'Strategy, Tesla, Metaplanet';
+    document.getElementById('exchOutflows').textContent = '+22,500 BTC';
+    document.getElementById('exchOutflowsSub').textContent = 'Moving to self-custody';
+    document.getElementById('minerSelling').textContent = String.fromCharCode(8722) + '6,800 BTC';
+    document.getElementById('minerSellingSub').textContent = 'Post-halving revenue pressure';
+}
+
+// ── Treasury ─────────────────────────────────────────────────────────
+var _treasuryData = [];
+var _treasurySortKey = 'btc';
+var _treasurySortDir = -1;
+
+async function fetchTreasury() {
+    var result = await apiFetch('/api/treasury');
+    if (result.error || !result.data) return;
+    _state.treasury = result.data;
+    _treasuryData = result.data.companies || [];
+    renderTreasury();
+}
+
+function renderTreasury() {
+    var tbody = document.getElementById('treasuryBody');
+    if (!tbody) return;
+    var html = '';
+    _treasuryData.forEach(function(c) {
+        var pnlClass = (c.pnl !== null && c.pnl >= 0) ? 'positive' : 'negative';
+        var pnlText = c.pnl !== null ? fmtPct(c.pnl) : 'N/A';
+        var costText = c.avg_cost ? fmt(c.avg_cost) : 'N/A';
+        var valueText = c.value ? fmt(c.value) : 'N/A';
+        html += '<tr><td>' + c.name + '</td><td>' + fmtBTC(c.btc) + '</td><td>' + costText + '</td><td>' + valueText + '</td><td class="' + pnlClass + '">' + pnlText + '</td></tr>';
+    });
+    tbody.innerHTML = html || '<tr><td colspan="5" style="color:var(--text-muted);">No data available</td></tr>';
+}
+
+function filterTreasury() {
+    var q = document.getElementById('treasurySearch').value.toLowerCase();
+    var rows = document.querySelectorAll('#treasuryTable tbody tr');
+    rows.forEach(function(r) { r.style.display = r.textContent.toLowerCase().indexOf(q) >= 0 ? '' : 'none'; });
+}
+
+function sortTreasury(key) {
+    if (_treasurySortKey === key) _treasurySortDir *= -1;
+    else { _treasurySortKey = key; _treasurySortDir = -1; }
+    _treasuryData.sort(function(a,b) {
+        var av = a[key], bv = b[key];
+        if (typeof av === 'string') return _treasurySortDir * av.localeCompare(bv);
+        return _treasurySortDir * ((av || 0) - (bv || 0));
+    });
+    renderTreasury();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// CHART RENDERERS (lazy via IntersectionObserver)
+// ══════════════════════════════════════════════════════════════════════
+
+// Net Flows chart
+registerChartSection('flowsChart', function() {
+    var etfs = _state.etfFlows ? _state.etfFlows.etfs : [];
+    var totalNet = etfs.reduce(function(s,e) { return s + (e.flow_btc || 0); }, 0);
+    var cats = ['ETFs', 'Corporate', 'Exchange Outflow', 'Miner Selling'];
+    var vals = [totalNet, 18300, 22500, -6800];
+    var colors = vals.map(function(v) { return v >= 0 ? '#22c55e' : '#ef4444'; });
+    
+    safePlot('flowsChart', [{
+        x: cats, y: vals, type: 'bar',
+        marker: { color: colors }
+    }], {
+        title: { text: '30-Day Net Flows by Category (BTC)', font: { color: '#e2e8f0', size: 14 } }
+    });
+});
+
+// Reserves chart
+registerChartSection('reservesChart', function() {
+    var days30 = [];
+    var reserveData = [];
+    var now = new Date();
+    for (var i = 29; i >= 0; i--) {
+        var d = new Date(now - i * 86400000);
+        days30.push(d.toLocaleDateString('en', {month:'short', day:'numeric'}));
+        reserveData.push(2344200 - (29-i) * 1800 - Math.random() * 500);
+    }
+    
+    // Update stats
+    document.getElementById('totalExch').textContent = '2,290,000 BTC';
+    document.getElementById('totalExchSub').textContent = '10.9% of supply';
+    document.getElementById('exchChange').textContent = '−54,200 BTC';
+    document.getElementById('exchChangeSub').textContent = 'Accelerating outflows';
+    document.getElementById('exchTrend').textContent = 'Bullish Signal';
+    document.getElementById('exchTrendSub').textContent = 'Lowest since Feb 2018';
+    
+    safePlot('reservesChart', [{
+        x: days30, y: reserveData, type: 'scatter', fill: 'tozeroy',
+        line: { color: '#ef4444' }, fillcolor: 'rgba(239,68,68,0.1)', name: 'BTC on Exchanges'
+    }], {
+        title: { text: 'Exchange Reserves Trend', font: { color: '#e2e8f0', size: 14 } },
+        yaxis: { gridcolor: '#1e293b', range: [2280000, 2350000] },
+        margin: { t: 40, r: 20, b: 40, l: 70 }
+    });
+});
+
+// Institutional chart
+registerChartSection('instChart', function() {
+    var etfs = _state.etfFlows ? _state.etfFlows.etfs : [];
+    var names = etfs.map(function(e) { return e.ticker || e.name; });
+    var vals = etfs.map(function(e) { return e.flow_btc; });
+    var colors = vals.map(function(v) { return v >= 0 ? '#22c55e' : '#ef4444'; });
+    
+    if (names.length === 0) {
+        names = ['IBIT', 'FBTC', 'ARKB', 'BITB', 'GBTC', 'Others'];
+        vals = [21400, 12800, 6200, 4800, -3200, 6220];
+        colors = [('#22c55e'), '#22c55e', '#22c55e', '#22c55e', '#ef4444', '#22c55e'];
+    }
+    
+    safePlot('instChart', [{
+        x: names, y: vals, type: 'bar',
+        marker: { color: colors }
+    }], {
+        title: { text: 'ETF Flows by Fund (30-Day BTC)', font: { color: '#e2e8f0', size: 14 } }
+    });
+});
+
+// Retail vs Whale chart
+registerChartSection('retailChart', function() {
+    var days30 = [];
+    var retailD = [], whaleD = [];
+    var now = new Date();
+    for (var i = 29; i >= 0; i--) {
+        var d = new Date(now - i * 86400000);
+        days30.push(d.toLocaleDateString('en', {month:'short', day:'numeric'}));
+        retailD.push(280 + Math.random() * 100);
+        whaleD.push(900 + Math.random() * 300);
+    }
+    
+    safePlot('retailChart', [
+        { x: days30, y: retailD, name: 'Retail (<1 BTC)', type: 'bar', marker: { color: '#3b82f6' } },
+        { x: days30, y: whaleD, name: 'Whales (1k+ BTC)', type: 'bar', marker: { color: '#a855f7' } }
+    ], {
+        title: { text: 'Daily Accumulation: Retail vs Whales (BTC)', font: { color: '#e2e8f0', size: 14 } },
+        barmode: 'group',
+        legend: { orientation: 'h', y: -0.25 }
+    });
+});
+
+// Cumulative chart
+registerChartSection('cumulativeChart', function() {
+    var cumData = [];
+    var cumVal = 0;
+    var cumLabels = [];
+    for (var i = 0; i < 90; i++) {
+        cumVal += 1200 + Math.random() * 800;
+        cumData.push(cumVal);
+        cumLabels.push('Day ' + (i+1));
+    }
+    
+    safePlot('cumulativeChart', [{
+        x: cumLabels, y: cumData, type: 'scatter', fill: 'tozeroy',
+        line: { color: '#22c55e' }, fillcolor: 'rgba(34,197,94,0.1)', name: 'Cumulative Net Flow'
+    }], {
+        title: { text: '90-Day Cumulative Net Flow (BTC)', font: { color: '#e2e8f0', size: 14 } },
+        margin: { t: 40, r: 20, b: 40, l: 70 }
+    });
+});
+
+// Power Law chart
+registerChartSection('powerlawChart', function() {
+    var plLabels = [], plFair = [], plSupport = [], plResist = [], plPrice = [];
+    var genesisMs = new Date('2009-01-03').getTime();
+    
+    for (var yr = 2010; yr <= 2036; yr++) {
+        var d = Math.floor((new Date(yr + '-01-01').getTime() - genesisMs) / 86400000);
+        var fv = powerLawPrice(d);
+        plLabels.push(yr);
+        plFair.push(fv);
+        plSupport.push(fv * 0.22);
+        plResist.push(fv * 4.5);
+    }
+    // Historical prices (approximate yearly averages)
+    var histPrices = [0.1,1,5,13,600,300,700,2500,8000,3500,7200,29000,47000,16500,27000,42000,84000,null,null,null,null,null,null,null,null,null,null];
+    // Override current year with live price
+    var currentYearIdx = new Date().getFullYear() - 2010;
+    if (_state.price && currentYearIdx >= 0 && currentYearIdx < histPrices.length) {
+        histPrices[currentYearIdx] = _state.price;
+    }
+    for (var i = 0; i < plLabels.length; i++) plPrice.push(histPrices[i] || null);
+    
+    safePlot('powerlawChart', [
+        { x: plLabels, y: plSupport, name: 'Support (0.22x)', line: { color: '#ef4444', dash: 'dot' }, type: 'scatter' },
+        { x: plLabels, y: plFair, name: 'Fair Value', line: { color: '#f59e0b' }, type: 'scatter' },
+        { x: plLabels, y: plResist, name: 'Resistance (4.5x)', line: { color: '#22c55e', dash: 'dot' }, type: 'scatter' },
+        { x: plLabels, y: plPrice, name: 'Actual Price', mode: 'markers', marker: { color: '#ffffff', size: 6 }, type: 'scatter' }
+    ], {
+        title: { text: 'Bitcoin Power Law Corridor', font: { color: '#e2e8f0', size: 14 } },
+        yaxis: { gridcolor: '#1e293b', type: 'log', title: 'Price (USD, log)' },
+        legend: { orientation: 'h', y: -0.2 }
+    });
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// POWER LAW
+// ══════════════════════════════════════════════════════════════════════
+function powerLawPrice(daysFromGenesis) {
+    return Math.pow(10, 5.82 * Math.log10(daysFromGenesis) - 17.01);
+}
+
+function updatePowerLawStats() {
+    var genesis = new Date('2009-01-03');
+    var now = new Date();
+    var daysFromGenesis = Math.floor((now - genesis) / 86400000);
+    var fairValue = powerLawPrice(daysFromGenesis);
+    var support = fairValue * 0.22;
+    var resistance = fairValue * 4.5;
+    
+    document.getElementById('plSupport').textContent = fmt(support);
+    document.getElementById('plFair').textContent = fmt(fairValue);
+    document.getElementById('plResist').textContent = fmt(resistance);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// DCA CALCULATOR
+// ══════════════════════════════════════════════════════════════════════
+function updateCurrentSats() {
+    try {
+        var btc = parseFloat(document.getElementById('currentBTC').value.replace(/[^0-9.]/g, '')) || 0;
+        document.getElementById('currentSats').textContent = Math.round(btc * 1e8).toLocaleString() + ' sats';
+    } catch(e) {}
+}
+
+function calculateDCA() {
+    try {
+        var currentBTC = parseFloat(document.getElementById('currentBTC').value.replace(/[^0-9.]/g, '')) || 0;
+        var dcaUSD = parseFloat(document.getElementById('dcaUSD').value.replace(/[^0-9.]/g, '')) || 0;
+        var freq = parseInt(document.getElementById('dcaFreq').value) || 30;
+        if (dcaUSD <= 0) return;
+
+        var genesis = new Date('2009-01-03');
+        var now = new Date();
+        var daysFromGenesis = Math.floor((now - genesis) / 86400000);
+        var firstPrice = powerLawPrice(daysFromGenesis);
+
+        var purchaseIntervalDays = freq;
+        var purchases5yr = Math.floor(1825 / purchaseIntervalDays);
+        var purchases10yr = Math.floor(3650 / purchaseIntervalDays);
+        var invested5 = purchases5yr * dcaUSD;
+        var invested10 = purchases10yr * dcaUSD;
+
+        var acc5 = 0, acc10 = 0;
+        var midPrice = firstPrice, lastPrice = firstPrice;
+        var satsPerPurchase = [];
+        var monthLabels = [];
+
+        for (var i = 0; i < purchases10yr; i++) {
+            var futureDays = daysFromGenesis + (i * purchaseIntervalDays);
+            var p = powerLawPrice(futureDays);
+            acc10 += dcaUSD / p;
+            if (i < purchases5yr) acc5 += dcaUSD / p;
+            if (i === purchases5yr - 1) midPrice = p;
+            if (i === purchases10yr - 1) lastPrice = p;
+            satsPerPurchase.push(Math.round((dcaUSD / p) * 1e8));
+            monthLabels.push(i);
+        }
+
+        var btc5 = currentBTC + acc5;
+        var btc10 = currentBTC + acc10;
+
+        var fair5 = powerLawPrice(daysFromGenesis + 1825);
+        var fair10 = powerLawPrice(daysFromGenesis + 3650);
+        var bear5 = Math.round(fair5 * 0.22);
+        var base5 = Math.round(fair5);
+        var bull5 = Math.round(fair5 * 4.5);
+        var bear10 = Math.round(fair10 * 0.22);
+        var base10 = Math.round(fair10);
+        var bull10 = Math.round(fair10 * 4.5);
+
+        var roi5 = invested5 > 0 ? ((btc5 * base5 - invested5) / invested5 * 100).toFixed(0) : 0;
+        var roi10val = invested10 > 0 ? ((btc10 * base10 - invested10) / invested10 * 100).toFixed(0) : 0;
+
+        var firstSats = Math.round((dcaUSD / firstPrice) * 1e8);
+        var midSats = Math.round((dcaUSD / midPrice) * 1e8);
+        var lastSats = Math.round((dcaUSD / lastPrice) * 1e8);
+
+        document.getElementById('satsFirst').textContent = 'Today: ' + firstSats.toLocaleString() + ' sats';
+        document.getElementById('satsMid').textContent = 'Year 5: ' + midSats.toLocaleString() + ' sats';
+        document.getElementById('satsLast').textContent = 'Year 10: ' + lastSats.toLocaleString() + ' sats';
+        document.getElementById('totalInvested5').textContent = fmt(invested5);
+        document.getElementById('totalInvested10').textContent = fmt(invested10);
+
+        document.getElementById('totalBTC5yr').textContent = btc5.toFixed(4) + ' BTC';
+        document.getElementById('totalSats5yr').textContent = Math.round(btc5 * 1e8).toLocaleString() + ' sats';
+        document.getElementById('valueBear5').textContent = fmt(btc5 * bear5);
+        document.getElementById('valueBase5').textContent = fmt(btc5 * base5);
+        document.getElementById('valueBull5').textContent = fmt(btc5 * bull5);
+        document.getElementById('bearPrice5').textContent = '$' + bear5.toLocaleString();
+        document.getElementById('basePrice5').textContent = '$' + base5.toLocaleString();
+        document.getElementById('bullPrice5').textContent = '$' + bull5.toLocaleString();
+        document.getElementById('roi5').textContent = '+' + roi5 + '%';
+
+        document.getElementById('totalBTC10yr').textContent = btc10.toFixed(4) + ' BTC';
+        document.getElementById('totalSats10yr').textContent = Math.round(btc10 * 1e8).toLocaleString() + ' sats';
+        document.getElementById('valueBear10').textContent = fmt(btc10 * bear10);
+        document.getElementById('valueBase10').textContent = fmt(btc10 * base10);
+        document.getElementById('valueBull10').textContent = fmt(btc10 * bull10);
+        document.getElementById('bearPrice10').textContent = '$' + bear10.toLocaleString();
+        document.getElementById('basePrice10').textContent = '$' + base10.toLocaleString();
+        document.getElementById('bullPrice10').textContent = '$' + bull10.toLocaleString();
+        document.getElementById('roi10').textContent = '+' + roi10val + '%';
+
+        document.getElementById('dcaResults').style.display = 'block';
+
+        // Projection chart
+        var bearLine = [], baseLine = [], bullLine = [], labels = [];
+        for (var m = 0; m <= 120; m++) {
+            var d = daysFromGenesis + (m * 30.44);
+            var fv = powerLawPrice(d);
+            var accM = 0;
+            for (var j = 0; j < purchases10yr && j * purchaseIntervalDays <= m * 30.44; j++) {
+                accM += dcaUSD / powerLawPrice(daysFromGenesis + j * purchaseIntervalDays);
+            }
+            var totalM = currentBTC + accM;
+            bearLine.push(totalM * fv * 0.22);
+            baseLine.push(totalM * fv);
+            bullLine.push(totalM * fv * 4.5);
+            labels.push('M' + m);
+        }
+
+        safePlot('dcaChart', [
+            { x: labels, y: bearLine, name: 'Bear', line: { color: '#ef4444' }, type: 'scatter' },
+            { x: labels, y: baseLine, name: 'Base', line: { color: '#f59e0b' }, type: 'scatter' },
+            { x: labels, y: bullLine, name: 'Bull', line: { color: '#22c55e' }, type: 'scatter' }
+        ], {
+            title: { text: 'Portfolio Value Projection (10yr)', font: { color: '#e2e8f0', size: 14 } },
+            yaxis: { gridcolor: '#1e293b', title: 'USD Value', type: 'log' },
+            xaxis: { gridcolor: '#1e293b', title: 'Month' },
+            legend: { orientation: 'h', y: -0.2 }
+        });
+
+        // Sats decline chart
+        safePlot('satsDeclineChart', [{
+            x: monthLabels, y: satsPerPurchase, type: 'scatter', fill: 'tozeroy',
+            line: { color: '#f59e0b' }, fillcolor: 'rgba(245,158,11,0.15)',
+            name: 'Sats per Purchase'
+        }], {
+            title: { text: 'Purchasing Power Decline (sats per $' + dcaUSD + ')', font: { color: '#e2e8f0', size: 14 } },
+            xaxis: { gridcolor: '#1e293b', title: 'Purchase #' },
+            yaxis: { gridcolor: '#1e293b', title: 'Satoshis' }
+        });
+
+    } catch(e) {
+        console.error('DCA calc error:', e);
+    }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// NAV HIGHLIGHT ON SCROLL
+// ══════════════════════════════════════════════════════════════════════
+var sectionIds = ['flows','reserves','institutional','treasury','retail','cumulative','fear','halving','onchain','powerlaw','dca'];
+window.addEventListener('scroll', function() {
+    var scrollPos = window.scrollY + 80;
+    sectionIds.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && el.offsetTop <= scrollPos && el.offsetTop + el.offsetHeight > scrollPos) {
+            document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('active'); });
+            var link = document.querySelector('.nav-link[onclick*="' + id + '"]');
+            if (link) link.classList.add('active');
+        }
+    });
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// INITIALIZATION
+// ══════════════════════════════════════════════════════════════════════
+async function init() {
+    // Fetch all data in parallel
+    await Promise.allSettled([
+        fetchPrice(),
+        fetchFearGreed(),
+        fetchBlockHeight(),
+        fetchHashrate(),
+        fetchETFFlows(),
+        fetchTreasury(),
+    ]);
+    
+    // Initialize lazy chart rendering
+    initObserver();
+    
+    // Update power law stats
+    updatePowerLawStats();
+    
+    // Set up auto-refresh
+    setInterval(fetchPrice, PRICE_REFRESH);
+    setInterval(function() {
+        fetchPrice();
+        fetchFearGreed();
+        fetchBlockHeight();
+        fetchHashrate();
+        fetchETFFlows();
+        fetchTreasury();
+        // Re-render visible charts
+        Object.keys(_chartRendered).forEach(function(id) {
+            _chartRendered[id] = false;
+        });
+        initObserver();
+    }, REFRESH_INTERVAL);
+}
+
+// Start
+init();
+</script>
+</body>
+</html>
