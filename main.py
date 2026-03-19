@@ -55,7 +55,10 @@ async def fetch_json(url, headers=None, cache_key=None, max_age=300):
         if cached is not None:
             return cached
     try:
-        resp = await client.get(url, headers=headers or {})
+        headers = headers or {}
+        if "User-Agent" not in headers:
+            headers["User-Agent"] = "BTCMonitor/1.0"
+        resp = await client.get(url, headers=headers)
         resp.raise_for_status()
         data = resp.json()
         if cache_key:
@@ -78,7 +81,7 @@ async def fetch_json(url, headers=None, cache_key=None, max_age=300):
 async def get_price():
     url = (
         "https://api.coingecko.com/api/v3/simple/price"
-        "?ids=bitcoin&vs_currencies=usd"
+        "?ids=bitcoin&vs_currencies=usd,eur,gbp"
         "&include_24hr_change=true"
         "&include_24hr_vol=true"
         "&include_market_cap=true"
@@ -87,14 +90,17 @@ async def get_price():
     data = await fetch_json(url, cache_key="btc_price", max_age=60)
     if data and "bitcoin" in data:
         btc = data["bitcoin"]
-        return {
-            "price": btc.get("usd"),
-            "change_24h": btc.get("usd_24h_change"),
-            "volume_24h": btc.get("usd_24h_vol"),
-            "market_cap": btc.get("usd_market_cap"),
-            "last_updated": btc.get("last_updated_at"),
-            "cached": False,
-        }
+        result = {}
+        for currency in ["usd", "eur", "gbp"]:
+            result[currency] = {
+                "price": btc.get(currency),
+                "change_24h": btc.get(f"{currency}_24h_change"),
+                "volume_24h": btc.get(f"{currency}_24h_vol"),
+                "market_cap": btc.get(f"{currency}_market_cap"),
+            }
+        result["last_updated"] = btc.get("last_updated_at")
+        result["cached"] = False
+        return result
     return {"error": "unavailable", "cached": True}
 
 # 2. Bitcoin market chart (CoinGecko — 90 day history)
@@ -227,23 +233,27 @@ async def get_treasury():
 
 
 def get_curated_treasury(current_price):
-    """Fallback curated corporate treasury data."""
+    """Fallback curated corporate treasury data (March 18, 2026 — BitcoinTreasuries.net)."""
     treasury = [
-        {"name": "Strategy (MSTR)", "ticker": "MSTR", "btc": 506137, "avg_cost": 66608},
-        {"name": "Marathon Digital", "ticker": "MARA", "btc": 44893, "avg_cost": 37840},
-        {"name": "Riot Platforms", "ticker": "RIOT", "btc": 18692, "avg_cost": 36750},
-        {"name": "Tesla", "ticker": "TSLA", "btc": 11509, "avg_cost": 32600},
-        {"name": "Hut 8 Mining", "ticker": "HUT", "btc": 10096, "avg_cost": 24484},
-        {"name": "CleanSpark", "ticker": "CLSK", "btc": 9952, "avg_cost": 31400},
-        {"name": "Coinbase", "ticker": "COIN", "btc": 9480, "avg_cost": 28500},
-        {"name": "Block Inc", "ticker": "SQ", "btc": 8027, "avg_cost": 30667},
-        {"name": "Metaplanet", "ticker": "3350.T", "btc": 3050, "avg_cost": 72400},
-        {"name": "Semler Scientific", "ticker": "SMLR", "btc": 3192, "avg_cost": 68200},
+        {"name": "Strategy", "ticker": "MSTR", "btc": 761068, "avg_cost": 75696, "country": "US"},
+        {"name": "MARA Holdings", "ticker": "MARA", "btc": 53822, "avg_cost": 67400, "country": "US"},
+        {"name": "Twenty One Capital", "ticker": "XXI", "btc": 43514, "avg_cost": 65000, "country": "US"},
+        {"name": "Metaplanet", "ticker": "3350.T", "btc": 35102, "avg_cost": 72400, "country": "JP"},
+        {"name": "Bitcoin Standard Treasury Co", "ticker": "CEPO", "btc": 30021, "avg_cost": 78000, "country": "US"},
+        {"name": "Bullish", "ticker": "BLSH", "btc": 24300, "avg_cost": 25000, "country": "US"},
+        {"name": "Riot Platforms", "ticker": "RIOT", "btc": 18005, "avg_cost": 36750, "country": "US"},
+        {"name": "Coinbase Global", "ticker": "COIN", "btc": 15389, "avg_cost": 28500, "country": "US"},
+        {"name": "Hut 8 Mining", "ticker": "HUT", "btc": 13696, "avg_cost": 24484, "country": "US"},
+        {"name": "CleanSpark", "ticker": "CLSK", "btc": 13363, "avg_cost": 31400, "country": "US"},
+        {"name": "Strive", "ticker": "ASST", "btc": 13311, "avg_cost": 72000, "country": "US"},
+        {"name": "Tesla", "ticker": "TSLA", "btc": 11509, "avg_cost": 33539, "country": "US"},
+        {"name": "Trump Media", "ticker": "DJT", "btc": 9542, "avg_cost": 78000, "country": "US"},
+        {"name": "Block Inc", "ticker": "SQ", "btc": 8883, "avg_cost": 30667, "country": "US"},
+        {"name": "GD Culture Group", "ticker": "GDC", "btc": 7500, "avg_cost": 83000, "country": "US"},
     ]
     for t in treasury:
         t["value"] = t["btc"] * current_price
         t["pnl"] = ((current_price - t["avg_cost"]) / t["avg_cost"]) * 100 if t["avg_cost"] else None
-        t["country"] = "US"
     return treasury
 
 # 7. ETF flow data — aggregate from multiple free sources

@@ -149,6 +149,33 @@ tr:hover { background: var(--bg-card-hover); }
 /* Stale badge */
 .stale-badge { display: inline-block; background: var(--amber-dim); color: var(--amber); padding: 1px 8px; border-radius: 8px; font-size: 0.65rem; margin-left: 8px; vertical-align: middle; }
 
+/* Currency Switcher */
+.currency-switcher { display: inline-flex; gap: 4px; margin-top: 10px; }
+.currency-pill { padding: 4px 12px; border-radius: 16px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+.currency-pill:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+.currency-pill.active { background: var(--green); color: #000; border-color: var(--green); font-weight: 600; }
+
+/* Halving Explainer */
+.halving-explainer { background: var(--bg-card); border-left: 3px solid var(--amber); border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 20px 0; }
+.halving-explainer h4 { color: var(--amber); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.halving-explainer p, .halving-explainer ul { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; margin-bottom: 8px; }
+.halving-explainer ul { padding-left: 20px; }
+.halving-explainer li { margin-bottom: 4px; }
+.halving-explainer strong { color: var(--text-primary); }
+.halving-explainer .caution { font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-top: 8px; }
+
+/* DCA Instructions */
+.dca-instructions { background: var(--bg-card); border-left: 3px solid var(--blue); border-radius: 0 12px 12px 0; padding: 16px 20px; margin-bottom: 20px; }
+.dca-instructions h4 { color: var(--blue); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.dca-instructions p, .dca-instructions ol, .dca-instructions ul { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; margin-bottom: 8px; }
+.dca-instructions ol, .dca-instructions ul { padding-left: 20px; }
+.dca-instructions li { margin-bottom: 4px; }
+.dca-instructions strong { color: var(--text-primary); }
+.dca-instructions .disclaimer { font-size: 0.8rem; color: var(--text-muted); font-style: italic; margin-top: 8px; }
+
+/* Treasury note */
+.treasury-note { font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; padding: 4px 0; }
+
 /* Footer */
 .footer { text-align: center; padding: 40px 0 60px; color: var(--text-muted); font-size: 0.8rem; }
 .footer a { color: var(--text-muted); text-decoration: none; }
@@ -167,6 +194,7 @@ tr:hover { background: var(--bg-card-hover); }
     .results-grid { grid-template-columns: 1fr; }
     .section { padding: 24px 0; }
     .section-title { font-size: 1.15rem; }
+    .currency-pill { padding: 3px 8px; font-size: 0.7rem; }
 }
 @media (max-width: 480px) {
     .stats-row { grid-template-columns: 1fr; }
@@ -197,6 +225,11 @@ tr:hover { background: var(--bg-card-hover); }
     <h1>&#8383;itcoin <span>Capital Flow Monitor</span></h1>
     <div class="live-price" id="livePrice"><span class="shimmer shimmer-text" style="width:200px;height:2.4rem;">&nbsp;</span></div>
     <div class="price-change" id="priceChange"><span class="shimmer shimmer-text" style="width:120px;">&nbsp;</span></div>
+    <div class="currency-switcher" id="currencySwitcher">
+        <button class="currency-pill active" data-currency="usd" onclick="switchCurrency('usd')">$ USD</button>
+        <button class="currency-pill" data-currency="eur" onclick="switchCurrency('eur')">&#8364; EUR</button>
+        <button class="currency-pill" data-currency="gbp" onclick="switchCurrency('gbp')">&#163; GBP</button>
+    </div>
     <div class="api-badge badge-live" id="apiBadge">&#9889; CONNECTING...</div>
     <div class="last-updated" id="lastUpdated">Last updated: loading...</div>
 </header>
@@ -253,6 +286,7 @@ tr:hover { background: var(--bg-card-hover); }
                 <tr><td colspan="5" class="shimmer" style="height:40px;">&nbsp;</td></tr>
             </tbody>
         </table>
+        <div class="treasury-note">Data as of March 18, 2026 &bull; Source: BitcoinTreasuries.net</div>
     </div>
 </div>
 
@@ -341,6 +375,19 @@ tr:hover { background: var(--bg-card-hover); }
             </tbody>
         </table>
     </div>
+    <div class="halving-explainer">
+        <h4>&#128161; How Should Investors Interpret the Halving?</h4>
+        <p>Bitcoin's halving cuts the block reward in half approximately every 4 years (210,000 blocks), reducing the rate of new BTC entering circulation. This supply shock has historically preceded significant price appreciation.</p>
+        <p><strong>Historical Pattern:</strong></p>
+        <ul>
+            <li><strong>2012 Halving</strong> (50&#8594;25 BTC): Price rose ~9,000% in the 12&#8211;18 months following</li>
+            <li><strong>2016 Halving</strong> (25&#8594;12.5 BTC): Price rose ~2,800% in the 12&#8211;18 months following</li>
+            <li><strong>2020 Halving</strong> (12.5&#8594;6.25 BTC): Price rose ~700% in the 12&#8211;18 months following</li>
+            <li><strong>2024 Halving</strong> (6.25&#8594;3.125 BTC): Current cycle</li>
+        </ul>
+        <p><strong>Key Takeaway for Investors:</strong> The diminishing percentage gains each cycle suggest a maturing market, but the pattern of post-halving appreciation has held across all four completed cycles. Many investors use the 12&#8211;18 months before a halving as an accumulation window, anticipating reduced supply pressure. The countdown above shows how far we are from the next supply reduction &#8212; historically, the period 6&#8211;18 months after halving has seen the strongest price action.</p>
+        <p class="caution">&#9888; Caution: Past performance does not guarantee future results. Each cycle has unique macro conditions.</p>
+    </div>
 </div>
 
 <!-- 9. ON-CHAIN METRICS -->
@@ -395,13 +442,13 @@ tr:hover { background: var(--bg-card-hover); }
 <div class="section" id="powerlaw">
     <h2 class="section-title"><span class="icon">&#128208;</span> Power Law Corridor</h2>
     <div class="stats-row" id="plStats">
-        <div class="info-card"><div class="info-label">Support Band</div><div class="info-value negative" id="plSupport"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub">0.22&#215; fair value</div></div>
+        <div class="info-card"><div class="info-label">Support Floor</div><div class="info-value negative" id="plSupport"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub">Power law lower bound</div></div>
         <div class="info-card"><div class="info-label">Fair Value (model)</div><div class="info-value" style="color:var(--amber);" id="plFair"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub">Power law midline</div></div>
-        <div class="info-card"><div class="info-label">Resistance Band</div><div class="info-value positive" id="plResist"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub">4.5&#215; fair value</div></div>
+        <div class="info-card"><div class="info-label">Resistance Ceiling</div><div class="info-value positive" id="plResist"><span class="shimmer shimmer-text">&nbsp;</span></div><div class="info-sub">Power law upper bound</div></div>
     </div>
     <div class="context-card">
         <h4>&#128214; The Power Law Model</h4>
-        <p>Bitcoin's price has followed a power law relationship with time since inception: log&#8321;&#8320;(price) = 5.82 &#215; log&#8321;&#8320;(days) &#8722; 17.01. The support band (0.22&#215;) has never been breached; the resistance band (4.5&#215;) marks cycle tops. Current price near fair value &#8212; historically, the best risk/reward zone for accumulation.</p>
+        <p>Bitcoin's price has followed a power law relationship with time since inception: log&#8321;&#8320;(price) = 5.83 &#215; log&#8321;&#8320;(days) + c, where c varies by band. The support floor has never been breached; the resistance ceiling marks cycle tops. Current price relative to fair value indicates the risk/reward zone for accumulation.</p>
     </div>
     <div class="chart-box" id="powerlawChart"><div class="chart-placeholder shimmer shimmer-block"></div></div>
 </div>
@@ -409,6 +456,23 @@ tr:hover { background: var(--bg-card-hover); }
 <!-- 11. DCA CALCULATOR -->
 <div class="section" id="dca">
     <h2 class="section-title"><span class="icon">&#129518;</span> DCA Calculator (Power Law Model)</h2>
+    <div class="dca-instructions">
+        <h4>&#128214; How to Use This Calculator</h4>
+        <p>The DCA (Dollar-Cost Averaging) Power Law Calculator estimates potential returns by combining regular Bitcoin purchases with the Power Law model's price projections.</p>
+        <ol>
+            <li>Enter your current BTC holdings (if any) and the amount you plan to invest per purchase</li>
+            <li>Choose your purchase frequency (daily, weekly, bi-weekly, or monthly)</li>
+            <li>Click <strong>Calculate Projection</strong> to see results across three scenarios</li>
+        </ol>
+        <p><strong>What the results show:</strong></p>
+        <ul>
+            <li><strong>Total Invested</strong> &mdash; Your cumulative cash outlay over the period</li>
+            <li><strong>BTC Accumulated</strong> &mdash; Estimated Bitcoin purchased (assuming DCA at Power Law trajectory prices)</li>
+            <li><strong>Portfolio Value</strong> &mdash; Projected value at 5-year and 10-year horizons under Bear, Base, and Bull scenarios</li>
+            <li><strong>ROI</strong> &mdash; Return on investment for the base (fair value) scenario</li>
+        </ul>
+        <p class="disclaimer">Note: These projections use the Power Law model which assumes Bitcoin's historical growth pattern continues. Actual results will vary. This is not financial advice.</p>
+    </div>
     <div class="dca-form">
         <div>
             <label>Current BTC Holdings</label>
@@ -416,7 +480,7 @@ tr:hover { background: var(--bg-card-hover); }
             <div class="info-sub" id="currentSats" style="margin-top:4px;">5,000,000 sats</div>
         </div>
         <div>
-            <label>DCA Amount (USD per purchase)</label>
+            <label id="dcaAmountLabel">DCA Amount (USD per purchase)</label>
             <input type="text" inputmode="decimal" id="dcaUSD" value="100">
         </div>
         <div>
@@ -493,9 +557,42 @@ var _chartRendered = {};
 var _pendingCharts = [];
 
 // ══════════════════════════════════════════════════════════════════════
+// CURRENCY SWITCHER
+// ══════════════════════════════════════════════════════════════════════
+var currentCurrency = 'usd';
+var exchangeRates = { usd: 1, eur: 0.873, gbp: 0.754 };
+var currencySymbols = { usd: '$', eur: '\u20AC', gbp: '\u00A3' };
+var _priceAllCurrencies = {}; // stores {usd: {price,change_24h,...}, eur: {...}, gbp: {...}}
+
+function switchCurrency(currency) {
+    currentCurrency = currency;
+    document.querySelectorAll('.currency-pill').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.currency === currency);
+    });
+    // Update DCA label
+    var label = document.getElementById('dcaAmountLabel');
+    if (label) label.textContent = 'DCA Amount (' + currency.toUpperCase() + ' per purchase)';
+    // Re-render all price displays
+    updatePriceDisplay();
+    renderTreasury();
+    updatePowerLawStats();
+    // Re-render DCA results if visible
+    if (document.getElementById('dcaResults').style.display !== 'none') {
+        calculateDCA();
+    }
+}
+
+function formatCurrencyValue(usdValue) {
+    if (usdValue == null) return 'N/A';
+    var converted = usdValue * exchangeRates[currentCurrency];
+    return currencySymbols[currentCurrency] + Number(converted).toLocaleString(undefined, {maximumFractionDigits: 0});
+}
+
+// ══════════════════════════════════════════════════════════════════════
 // UTILITIES
 // ══════════════════════════════════════════════════════════════════════
-function fmt(n) { return '$' + Number(n).toLocaleString(undefined, {maximumFractionDigits: 0}); }
+function fmt(n) { return formatCurrencyValue(n); }
+function fmtUSD(n) { return '$' + Number(n).toLocaleString(undefined, {maximumFractionDigits: 0}); }
 function fmtBTC(n) { return Number(n).toLocaleString(undefined, {maximumFractionDigits: 0}); }
 function fmtPct(n) { return (n >= 0 ? '+' : '') + Number(n).toFixed(1) + '%'; }
 
@@ -625,20 +722,24 @@ async function fetchPrice() {
     var result = await apiFetch('/api/price');
     if (result.error || !result.data || result.data.error) {
         document.getElementById('apiBadge').className = 'api-badge badge-error';
-        document.getElementById('apiBadge').textContent = '&#10060; API Unavailable';
+        document.getElementById('apiBadge').textContent = '\u274C API Unavailable';
         return;
     }
     var d = result.data;
-    _state.price = d.price;
+    // Store all currency data
+    _priceAllCurrencies = d;
+    // USD price is canonical for internal calculations
+    _state.price = d.usd ? d.usd.price : (d.price || null);
     
-    document.getElementById('livePrice').textContent = fmt(d.price);
+    // Compute exchange rates from CoinGecko response
+    if (d.usd && d.usd.price && d.eur && d.eur.price && d.gbp && d.gbp.price) {
+        var usdPrice = d.usd.price;
+        exchangeRates.usd = 1;
+        exchangeRates.eur = d.eur.price / usdPrice;
+        exchangeRates.gbp = d.gbp.price / usdPrice;
+    }
     
-    var change = d.change_24h || 0;
-    var arrow = change >= 0 ? '&#9650;' : '&#9660;';
-    var changeEl = document.getElementById('priceChange');
-    changeEl.innerHTML = arrow + ' ' + fmtPct(change) + ' (24h)';
-    changeEl.style.color = change >= 0 ? 'var(--green)' : 'var(--red)';
-    document.getElementById('livePrice').style.color = change >= 0 ? 'var(--green)' : 'var(--red)';
+    updatePriceDisplay();
     
     if (result.stale) {
         document.getElementById('apiBadge').className = 'api-badge badge-cached';
@@ -654,6 +755,30 @@ async function fetchPrice() {
     
     // Update power law stats with live price
     updatePowerLawStats();
+}
+
+function updatePriceDisplay() {
+    var d = _priceAllCurrencies;
+    if (!d || (!d.usd && !d.price)) return;
+    
+    var currData = d[currentCurrency];
+    var price, change;
+    if (currData) {
+        price = currData.price;
+        change = currData.change_24h || 0;
+    } else {
+        // Legacy single-currency fallback
+        price = d.price;
+        change = d.change_24h || 0;
+    }
+    
+    document.getElementById('livePrice').textContent = currencySymbols[currentCurrency] + Number(price).toLocaleString(undefined, {maximumFractionDigits: 0});
+    
+    var arrow = change >= 0 ? '\u25B2' : '\u25BC';
+    var changeEl = document.getElementById('priceChange');
+    changeEl.innerHTML = arrow + ' ' + fmtPct(change) + ' (24h)';
+    changeEl.style.color = change >= 0 ? 'var(--green)' : 'var(--red)';
+    document.getElementById('livePrice').style.color = change >= 0 ? 'var(--green)' : 'var(--red)';
 }
 
 // ── Fear & Greed ─────────────────────────────────────────────────────
@@ -789,7 +914,7 @@ async function fetchETFFlows() {
     
     // Net flows section aggregate
     document.getElementById('etfInflows').textContent = '+' + fmtBTC(totalNet) + ' BTC';
-    document.getElementById('etfInflowsSub').textContent = fmt(totalNet * price) + ' at current price';
+    document.getElementById('etfInflowsSub').textContent = formatCurrencyValue(totalNet * price) + ' at current price';
     
     // Corporate buys, exchange outflows, miner selling (curated — require CryptoQuant for live)
     document.getElementById('corpBuys').textContent = '+18,300 BTC';
@@ -821,8 +946,11 @@ function renderTreasury() {
         var pnlClass = (c.pnl !== null && c.pnl >= 0) ? 'positive' : 'negative';
         var pnlText = c.pnl !== null ? fmtPct(c.pnl) : 'N/A';
         var costText = c.avg_cost ? fmt(c.avg_cost) : 'N/A';
-        var valueText = c.value ? fmt(c.value) : 'N/A';
-        html += '<tr><td>' + c.name + '</td><td>' + fmtBTC(c.btc) + '</td><td>' + costText + '</td><td>' + valueText + '</td><td class="' + pnlClass + '">' + pnlText + '</td></tr>';
+        // Recalculate value using current price in current currency
+        var currentPriceUSD = _state.price || 84000;
+        var valueUSD = c.btc * currentPriceUSD;
+        var valueText = fmt(valueUSD);
+        html += '<tr><td>' + c.name + ' <span style="color:var(--text-muted);font-size:0.75rem;">(' + (c.ticker || '') + ')</span></td><td>' + fmtBTC(c.btc) + '</td><td>' + costText + '</td><td>' + valueText + '</td><td class="' + pnlClass + '">' + pnlText + '</td></tr>';
     });
     tbody.innerHTML = html || '<tr><td colspan="5" style="color:var(--text-muted);">No data available</td></tr>';
 }
@@ -852,7 +980,8 @@ function sortTreasury(key) {
 registerChartSection('flowsChart', function() {
     var etfs = _state.etfFlows ? _state.etfFlows.etfs : [];
     var totalNet = etfs.reduce(function(s,e) { return s + (e.flow_btc || 0); }, 0);
-    var cats = ['ETFs', 'Corporate', 'Exchange Outflow', 'Miner Selling'];
+    var isMobile = window.innerWidth < 768;
+    var cats = isMobile ? ['ETFs', 'Corporate', 'Exch Outflow', 'Miners'] : ['Spot ETFs', 'Corporate Buys', 'Exchange Outflow', 'Miner Selling'];
     var vals = [totalNet, 18300, 22500, -6800];
     var colors = vals.map(function(v) { return v >= 0 ? '#22c55e' : '#ef4444'; });
     
@@ -860,7 +989,10 @@ registerChartSection('flowsChart', function() {
         x: cats, y: vals, type: 'bar',
         marker: { color: colors }
     }], {
-        title: { text: '30-Day Net Flows by Category (BTC)', font: { color: '#e2e8f0', size: 14 } }
+        title: { text: '30-Day Net Flows by Category (BTC)', font: { color: '#e2e8f0', size: isMobile ? 12 : 14 } },
+        xaxis: { tickangle: isMobile ? -45 : 0, automargin: true, tickfont: { size: isMobile ? 10 : 12 } },
+        yaxis: { automargin: true },
+        margin: { t: 40, r: 20, b: isMobile ? 80 : 60, l: 60 }
     });
 });
 
@@ -877,7 +1009,7 @@ registerChartSection('reservesChart', function() {
     
     // Update stats
     document.getElementById('totalExch').textContent = '2,290,000 BTC';
-    document.getElementById('totalExchSub').textContent = '10.9% of supply';
+    document.getElementById('totalExchSub').textContent = '11.6% of circulating supply (~19.83M BTC mined)';
     document.getElementById('exchChange').textContent = '−54,200 BTC';
     document.getElementById('exchChangeSub').textContent = 'Accelerating outflows';
     document.getElementById('exchTrend').textContent = 'Bullish Signal';
@@ -959,15 +1091,14 @@ registerChartSection('cumulativeChart', function() {
 // Power Law chart
 registerChartSection('powerlawChart', function() {
     var plLabels = [], plFair = [], plSupport = [], plResist = [], plPrice = [];
-    var genesisMs = new Date('2009-01-03').getTime();
     
     for (var yr = 2010; yr <= 2036; yr++) {
-        var d = Math.floor((new Date(yr + '-01-01').getTime() - genesisMs) / 86400000);
-        var fv = powerLawPrice(d);
+        var d = daysSinceGenesis(new Date(yr, 0, 1));
+        var pl = powerLawCalc(d);
         plLabels.push(yr);
-        plFair.push(fv);
-        plSupport.push(fv * 0.22);
-        plResist.push(fv * 4.5);
+        plFair.push(pl.fairValue);
+        plSupport.push(pl.support);
+        plResist.push(pl.resistance);
     }
     // Historical prices (approximate yearly averages)
     var histPrices = [0.1,1,5,13,600,300,700,2500,8000,3500,7200,29000,47000,16500,27000,42000,84000,null,null,null,null,null,null,null,null,null,null];
@@ -979,9 +1110,9 @@ registerChartSection('powerlawChart', function() {
     for (var i = 0; i < plLabels.length; i++) plPrice.push(histPrices[i] || null);
     
     safePlot('powerlawChart', [
-        { x: plLabels, y: plSupport, name: 'Support (0.22x)', line: { color: '#ef4444', dash: 'dot' }, type: 'scatter' },
+        { x: plLabels, y: plSupport, name: 'Support Floor', line: { color: '#ef4444', dash: 'dot' }, type: 'scatter' },
         { x: plLabels, y: plFair, name: 'Fair Value', line: { color: '#f59e0b' }, type: 'scatter' },
-        { x: plLabels, y: plResist, name: 'Resistance (4.5x)', line: { color: '#22c55e', dash: 'dot' }, type: 'scatter' },
+        { x: plLabels, y: plResist, name: 'Resistance Ceiling', line: { color: '#22c55e', dash: 'dot' }, type: 'scatter' },
         { x: plLabels, y: plPrice, name: 'Actual Price', mode: 'markers', marker: { color: '#ffffff', size: 6 }, type: 'scatter' }
     ], {
         title: { text: 'Bitcoin Power Law Corridor', font: { color: '#e2e8f0', size: 14 } },
@@ -993,21 +1124,32 @@ registerChartSection('powerlawChart', function() {
 // ══════════════════════════════════════════════════════════════════════
 // POWER LAW
 // ══════════════════════════════════════════════════════════════════════
+function daysSinceGenesis(date) {
+    if (!date) date = new Date();
+    var genesis = new Date(2009, 0, 3); // Jan 3, 2009
+    return Math.floor((date - genesis) / 86400000);
+}
+
+function powerLawCalc(daysFromGenesis) {
+    var logDays = Math.log10(daysFromGenesis);
+    var support = Math.pow(10, -17.4254 + 5.83 * logDays);
+    var fairValue = Math.pow(10, -17.0486 + 5.83 * logDays);
+    var resistance = Math.pow(10, -16.6718 + 5.83 * logDays);
+    return { support: support, fairValue: fairValue, resistance: resistance };
+}
+
+// Legacy compat wrapper
 function powerLawPrice(daysFromGenesis) {
-    return Math.pow(10, 5.82 * Math.log10(daysFromGenesis) - 17.01);
+    return powerLawCalc(daysFromGenesis).fairValue;
 }
 
 function updatePowerLawStats() {
-    var genesis = new Date('2009-01-03');
-    var now = new Date();
-    var daysFromGenesis = Math.floor((now - genesis) / 86400000);
-    var fairValue = powerLawPrice(daysFromGenesis);
-    var support = fairValue * 0.22;
-    var resistance = fairValue * 4.5;
+    var days = daysSinceGenesis();
+    var pl = powerLawCalc(days);
     
-    document.getElementById('plSupport').textContent = fmt(support);
-    document.getElementById('plFair').textContent = fmt(fairValue);
-    document.getElementById('plResist').textContent = fmt(resistance);
+    document.getElementById('plSupport').textContent = fmt(pl.support);
+    document.getElementById('plFair').textContent = fmt(pl.fairValue);
+    document.getElementById('plResist').textContent = fmt(pl.resistance);
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -1057,14 +1199,14 @@ function calculateDCA() {
         var btc5 = currentBTC + acc5;
         var btc10 = currentBTC + acc10;
 
-        var fair5 = powerLawPrice(daysFromGenesis + 1825);
-        var fair10 = powerLawPrice(daysFromGenesis + 3650);
-        var bear5 = Math.round(fair5 * 0.22);
-        var base5 = Math.round(fair5);
-        var bull5 = Math.round(fair5 * 4.5);
-        var bear10 = Math.round(fair10 * 0.22);
-        var base10 = Math.round(fair10);
-        var bull10 = Math.round(fair10 * 4.5);
+        var pl5 = powerLawCalc(daysFromGenesis + 1825);
+        var pl10 = powerLawCalc(daysFromGenesis + 3650);
+        var bear5 = Math.round(pl5.support);
+        var base5 = Math.round(pl5.fairValue);
+        var bull5 = Math.round(pl5.resistance);
+        var bear10 = Math.round(pl10.support);
+        var base10 = Math.round(pl10.fairValue);
+        var bull10 = Math.round(pl10.resistance);
 
         var roi5 = invested5 > 0 ? ((btc5 * base5 - invested5) / invested5 * 100).toFixed(0) : 0;
         var roi10val = invested10 > 0 ? ((btc10 * base10 - invested10) / invested10 * 100).toFixed(0) : 0;
@@ -1084,9 +1226,9 @@ function calculateDCA() {
         document.getElementById('valueBear5').textContent = fmt(btc5 * bear5);
         document.getElementById('valueBase5').textContent = fmt(btc5 * base5);
         document.getElementById('valueBull5').textContent = fmt(btc5 * bull5);
-        document.getElementById('bearPrice5').textContent = '$' + bear5.toLocaleString();
-        document.getElementById('basePrice5').textContent = '$' + base5.toLocaleString();
-        document.getElementById('bullPrice5').textContent = '$' + bull5.toLocaleString();
+        document.getElementById('bearPrice5').textContent = fmt(bear5);
+        document.getElementById('basePrice5').textContent = fmt(base5);
+        document.getElementById('bullPrice5').textContent = fmt(bull5);
         document.getElementById('roi5').textContent = '+' + roi5 + '%';
 
         document.getElementById('totalBTC10yr').textContent = btc10.toFixed(4) + ' BTC';
@@ -1094,9 +1236,9 @@ function calculateDCA() {
         document.getElementById('valueBear10').textContent = fmt(btc10 * bear10);
         document.getElementById('valueBase10').textContent = fmt(btc10 * base10);
         document.getElementById('valueBull10').textContent = fmt(btc10 * bull10);
-        document.getElementById('bearPrice10').textContent = '$' + bear10.toLocaleString();
-        document.getElementById('basePrice10').textContent = '$' + base10.toLocaleString();
-        document.getElementById('bullPrice10').textContent = '$' + bull10.toLocaleString();
+        document.getElementById('bearPrice10').textContent = fmt(bear10);
+        document.getElementById('basePrice10').textContent = fmt(base10);
+        document.getElementById('bullPrice10').textContent = fmt(bull10);
         document.getElementById('roi10').textContent = '+' + roi10val + '%';
 
         document.getElementById('dcaResults').style.display = 'block';
@@ -1105,15 +1247,15 @@ function calculateDCA() {
         var bearLine = [], baseLine = [], bullLine = [], labels = [];
         for (var m = 0; m <= 120; m++) {
             var d = daysFromGenesis + (m * 30.44);
-            var fv = powerLawPrice(d);
+            var plM = powerLawCalc(d);
             var accM = 0;
             for (var j = 0; j < purchases10yr && j * purchaseIntervalDays <= m * 30.44; j++) {
                 accM += dcaUSD / powerLawPrice(daysFromGenesis + j * purchaseIntervalDays);
             }
             var totalM = currentBTC + accM;
-            bearLine.push(totalM * fv * 0.22);
-            baseLine.push(totalM * fv);
-            bullLine.push(totalM * fv * 4.5);
+            bearLine.push(totalM * plM.support);
+            baseLine.push(totalM * plM.fairValue);
+            bullLine.push(totalM * plM.resistance);
             labels.push('M' + m);
         }
 
