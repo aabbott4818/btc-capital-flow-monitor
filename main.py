@@ -76,9 +76,10 @@ async def fetch_json(url, headers=None, cache_key=None, max_age=300):
 # API ROUTES
 # ══════════════════════════════════════════════════════════════════════
 
-# 1. Live Bitcoin Price (CoinGecko — free, no key required)
+# 1. Live Bitcoin Price (multi-source with fallback)
 @app.get("/api/price")
 async def get_price():
+    # Try CoinGecko first (has multi-currency + 24h change)
     url = (
         "https://api.coingecko.com/api/v3/simple/price"
         "?ids=bitcoin&vs_currencies=usd,eur,gbp"
@@ -101,6 +102,37 @@ async def get_price():
         result["last_updated"] = btc.get("last_updated_at")
         result["cached"] = False
         return result
+
+    # Fallback 1: Coinbase spot prices (very reliable, no rate limits)
+    try:
+        usd_resp = await client.get("https://api.coinbase.com/v2/prices/BTC-USD/spot",
+                                     headers={"User-Agent": "BTCMonitor/1.0"}, timeout=10.0)
+        eur_resp = await client.get("https://api.coinbase.com/v2/prices/BTC-EUR/spot",
+                                     headers={"User-Agent": "BTCMonitor/1.0"}, timeout=10.0)
+        gbp_resp = await client.get("https://api.coinbase.com/v2/prices/BTC-GBP/spot",
+                                     headers={"User-Agent": "BTCMonitor/1.0"}, timeout=10.0)
+        usd_price = float(usd_resp.json()["data"]["amount"])
+        eur_price = float(eur_resp.json()["data"]["amount"])
+        gbp_price = float(gbp_resp.json()["data"]["amount"])
+        result = {
+            "usd": {"price": usd_price, "change_24h": None, "volume_24h": None, "market_cap": None},
+            "eur": {"price": eur_price, "change_24h": None, "volume_24h": None, "market_cap": None},
+            "gbp": {"price": gbp_price, "change_24h": None, "volume_24h": None, "market_cap": None},
+            "last_updated": int(time.time()),
+            "cached": False,
+            "source": "coinbase",
+        }
+        set_cache("btc_price_fallback", result)
+        return result
+    except Exception as e:
+        print(f"[get_price] Coinbase fallback failed: {e}")
+
+    # Fallback 2: Return stale Coinbase cache
+    stale = get_cached("btc_price_fallback", 600)
+    if stale:
+        stale["cached"] = True
+        return stale
+
     return {"error": "unavailable", "cached": True}
 
 # 2. Bitcoin market chart (CoinGecko — 90 day history)

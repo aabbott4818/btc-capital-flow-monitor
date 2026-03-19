@@ -765,20 +765,25 @@ function updatePriceDisplay() {
     var price, change;
     if (currData) {
         price = currData.price;
-        change = currData.change_24h || 0;
+        change = currData.change_24h;
     } else {
         // Legacy single-currency fallback
         price = d.price;
-        change = d.change_24h || 0;
+        change = d.change_24h;
     }
     
     document.getElementById('livePrice').textContent = currencySymbols[currentCurrency] + Number(price).toLocaleString(undefined, {maximumFractionDigits: 0});
     
-    var arrow = change >= 0 ? '\u25B2' : '\u25BC';
     var changeEl = document.getElementById('priceChange');
-    changeEl.innerHTML = arrow + ' ' + fmtPct(change) + ' (24h)';
-    changeEl.style.color = change >= 0 ? 'var(--green)' : 'var(--red)';
-    document.getElementById('livePrice').style.color = change >= 0 ? 'var(--green)' : 'var(--red)';
+    if (change !== null && change !== undefined && change !== 0) {
+        var arrow = change >= 0 ? '\u25B2' : '\u25BC';
+        changeEl.innerHTML = arrow + ' ' + fmtPct(change) + ' (24h)';
+        changeEl.style.color = change >= 0 ? 'var(--green)' : 'var(--red)';
+        document.getElementById('livePrice').style.color = change >= 0 ? 'var(--green)' : 'var(--red)';
+    } else {
+        changeEl.innerHTML = '';
+        document.getElementById('livePrice').style.color = 'var(--green)';
+    }
 }
 
 // ── Fear & Greed ─────────────────────────────────────────────────────
