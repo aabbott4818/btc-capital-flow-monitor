@@ -922,12 +922,12 @@ async function fetchETFFlows() {
     document.getElementById('etfInflowsSub').textContent = formatCurrencyValue(totalNet * price) + ' at current price';
     
     // Corporate buys, exchange outflows, miner selling (curated — require CryptoQuant for live)
-    document.getElementById('corpBuys').textContent = '+18,300 BTC';
-    document.getElementById('corpBuysSub').textContent = 'Strategy, Tesla, Metaplanet';
-    document.getElementById('exchOutflows').textContent = '+22,500 BTC';
-    document.getElementById('exchOutflowsSub').textContent = 'Moving to self-custody';
-    document.getElementById('minerSelling').textContent = String.fromCharCode(8722) + '6,800 BTC';
-    document.getElementById('minerSellingSub').textContent = 'Post-halving revenue pressure';
+    document.getElementById('corpBuys').textContent = '+23,400 BTC';
+    document.getElementById('corpBuysSub').textContent = 'Strategy, Metaplanet, Strive';
+    document.getElementById('exchOutflows').textContent = '+77,000 BTC';
+    document.getElementById('exchOutflowsSub').textContent = 'Accelerating self-custody trend';
+    document.getElementById('minerSelling').textContent = String.fromCharCode(8722) + '8,200 BTC';
+    document.getElementById('minerSellingSub').textContent = 'MARA selling + revenue pressure';
 }
 
 // ── Treasury ─────────────────────────────────────────────────────────
@@ -1013,12 +1013,12 @@ registerChartSection('reservesChart', function() {
     }
     
     // Update stats
-    document.getElementById('totalExch').textContent = '2,290,000 BTC';
-    document.getElementById('totalExchSub').textContent = '11.6% of circulating supply (~19.83M BTC mined)';
-    document.getElementById('exchChange').textContent = '−54,200 BTC';
-    document.getElementById('exchChangeSub').textContent = 'Accelerating outflows';
+    document.getElementById('totalExch').textContent = '2,200,000 BTC';
+    document.getElementById('totalExchSub').textContent = '11.1% of circulating supply (~19.84M BTC mined)';
+    document.getElementById('exchChange').textContent = '−77,000 BTC';
+    document.getElementById('exchChangeSub').textContent = 'Accelerating outflows (Feb–Mar)';
     document.getElementById('exchTrend').textContent = 'Bullish Signal';
-    document.getElementById('exchTrendSub').textContent = 'Lowest since Feb 2018';
+    document.getElementById('exchTrendSub').textContent = 'Lowest since Dec 2017';
     
     safePlot('reservesChart', [{
         x: days30, y: reserveData, type: 'scatter', fill: 'tozeroy',

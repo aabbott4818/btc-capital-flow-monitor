@@ -317,14 +317,17 @@ async def get_etf_flows():
 
 
 def get_curated_etf_data(current_price):
-    """Curated ETF flow data based on latest public filings."""
+    """Curated ETF flow data (March 27, 2026 — SoSoValue, public filings).
+    Cumulative net inflows shown. AUM from SoSoValue."""
     return [
-        {"name": "BlackRock IBIT", "ticker": "IBIT", "flow_btc": 21400, "aum_usd": 52.3e9},
-        {"name": "Fidelity FBTC", "ticker": "FBTC", "flow_btc": 12800, "aum_usd": 18.7e9},
-        {"name": "ARK 21Shares ARKB", "ticker": "ARKB", "flow_btc": 6200, "aum_usd": 5.1e9},
-        {"name": "Bitwise BITB", "ticker": "BITB", "flow_btc": 4800, "aum_usd": 3.8e9},
-        {"name": "Grayscale GBTC", "ticker": "GBTC", "flow_btc": -3200, "aum_usd": 19.2e9},
-        {"name": "Others", "ticker": "—", "flow_btc": 6220, "aum_usd": 8.5e9},
+        {"name": "BlackRock IBIT", "ticker": "IBIT", "flow_btc": 62550, "aum_usd": 71.54e9, "cum_inflow_usd": 62.55e9},
+        {"name": "Fidelity FBTC", "ticker": "FBTC", "flow_btc": 12090, "aum_usd": 18.03e9, "cum_inflow_usd": 12.09e9},
+        {"name": "Grayscale GBTC", "ticker": "GBTC", "flow_btc": -25050, "aum_usd": 14.95e9, "cum_inflow_usd": -25.05e9},
+        {"name": "Grayscale Mini BTC", "ticker": "BTC", "flow_btc": 1960, "aum_usd": 4.34e9, "cum_inflow_usd": 1.96e9},
+        {"name": "Bitwise BITB", "ticker": "BITB", "flow_btc": 2260, "aum_usd": 3.59e9, "cum_inflow_usd": 2.26e9},
+        {"name": "ARK 21Shares ARKB", "ticker": "ARKB", "flow_btc": 1750, "aum_usd": 3.50e9, "cum_inflow_usd": 1.75e9},
+        {"name": "VanEck HODL", "ticker": "HODL", "flow_btc": 1190, "aum_usd": 1.52e9, "cum_inflow_usd": 1.19e9},
+        {"name": "Others", "ticker": "—", "flow_btc": 891, "aum_usd": 2.15e9, "cum_inflow_usd": 0.89e9},
     ]
 
 # 8. On-chain summary — aggregate what we can from free sources
