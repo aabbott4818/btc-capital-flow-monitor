@@ -265,19 +265,19 @@ async def get_treasury():
 
 
 def get_curated_treasury(current_price):
-    """Fallback curated corporate treasury data (March 18, 2026 — BitcoinTreasuries.net)."""
+    """Fallback curated corporate treasury data (March 27, 2026 — BitcoinTreasuries.net)."""
     treasury = [
-        {"name": "Strategy", "ticker": "MSTR", "btc": 761068, "avg_cost": 75696, "country": "US"},
-        {"name": "MARA Holdings", "ticker": "MARA", "btc": 53822, "avg_cost": 67400, "country": "US"},
+        {"name": "Strategy", "ticker": "MSTR", "btc": 762099, "avg_cost": 75694, "country": "US"},
         {"name": "Twenty One Capital", "ticker": "XXI", "btc": 43514, "avg_cost": 65000, "country": "US"},
+        {"name": "MARA Holdings", "ticker": "MARA", "btc": 38689, "avg_cost": 67400, "country": "US"},
         {"name": "Metaplanet", "ticker": "3350.T", "btc": 35102, "avg_cost": 72400, "country": "JP"},
         {"name": "Bitcoin Standard Treasury Co", "ticker": "CEPO", "btc": 30021, "avg_cost": 78000, "country": "US"},
         {"name": "Bullish", "ticker": "BLSH", "btc": 24300, "avg_cost": 25000, "country": "US"},
         {"name": "Riot Platforms", "ticker": "RIOT", "btc": 18005, "avg_cost": 36750, "country": "US"},
         {"name": "Coinbase Global", "ticker": "COIN", "btc": 15389, "avg_cost": 28500, "country": "US"},
         {"name": "Hut 8 Mining", "ticker": "HUT", "btc": 13696, "avg_cost": 24484, "country": "US"},
+        {"name": "Strive", "ticker": "ASST", "btc": 13628, "avg_cost": 72000, "country": "US"},
         {"name": "CleanSpark", "ticker": "CLSK", "btc": 13363, "avg_cost": 31400, "country": "US"},
-        {"name": "Strive", "ticker": "ASST", "btc": 13311, "avg_cost": 72000, "country": "US"},
         {"name": "Tesla", "ticker": "TSLA", "btc": 11509, "avg_cost": 33539, "country": "US"},
         {"name": "Trump Media", "ticker": "DJT", "btc": 9542, "avg_cost": 78000, "country": "US"},
         {"name": "Block Inc", "ticker": "SQ", "btc": 8883, "avg_cost": 30667, "country": "US"},
