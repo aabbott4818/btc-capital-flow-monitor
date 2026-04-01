@@ -265,7 +265,7 @@ async def get_treasury():
 
 
 def get_curated_treasury(current_price):
-    """Fallback curated corporate treasury data (March 27, 2026 — BitcoinTreasuries.net)."""
+    """Fallback curated corporate treasury data (April 1, 2026 — BitcoinTreasuries.net)."""
     treasury = [
         {"name": "Strategy", "ticker": "MSTR", "btc": 762099, "avg_cost": 75694, "country": "US"},
         {"name": "Twenty One Capital", "ticker": "XXI", "btc": 43514, "avg_cost": 65000, "country": "US"},
@@ -317,17 +317,17 @@ async def get_etf_flows():
 
 
 def get_curated_etf_data(current_price):
-    """Curated ETF flow data (March 27, 2026 — SoSoValue, public filings).
+    """Curated ETF flow data (April 1, 2026 — SoSoValue, public filings).
     Cumulative net inflows shown. AUM from SoSoValue."""
     return [
-        {"name": "BlackRock IBIT", "ticker": "IBIT", "flow_btc": 62550, "aum_usd": 71.54e9, "cum_inflow_usd": 62.55e9},
-        {"name": "Fidelity FBTC", "ticker": "FBTC", "flow_btc": 12090, "aum_usd": 18.03e9, "cum_inflow_usd": 12.09e9},
-        {"name": "Grayscale GBTC", "ticker": "GBTC", "flow_btc": -25050, "aum_usd": 14.95e9, "cum_inflow_usd": -25.05e9},
-        {"name": "Grayscale Mini BTC", "ticker": "BTC", "flow_btc": 1960, "aum_usd": 4.34e9, "cum_inflow_usd": 1.96e9},
-        {"name": "Bitwise BITB", "ticker": "BITB", "flow_btc": 2260, "aum_usd": 3.59e9, "cum_inflow_usd": 2.26e9},
-        {"name": "ARK 21Shares ARKB", "ticker": "ARKB", "flow_btc": 1750, "aum_usd": 3.50e9, "cum_inflow_usd": 1.75e9},
-        {"name": "VanEck HODL", "ticker": "HODL", "flow_btc": 1190, "aum_usd": 1.52e9, "cum_inflow_usd": 1.19e9},
-        {"name": "Others", "ticker": "—", "flow_btc": 891, "aum_usd": 2.15e9, "cum_inflow_usd": 0.89e9},
+        {"name": "BlackRock IBIT", "ticker": "IBIT", "flow_btc": 63257, "aum_usd": 54.0e9, "cum_inflow_usd": 63.26e9},
+        {"name": "Fidelity FBTC", "ticker": "FBTC", "flow_btc": 12090, "aum_usd": 16.5e9, "cum_inflow_usd": 12.09e9},
+        {"name": "Grayscale GBTC", "ticker": "GBTC", "flow_btc": -25220, "aum_usd": 12.9e9, "cum_inflow_usd": -25.22e9},
+        {"name": "Grayscale Mini BTC", "ticker": "BTC", "flow_btc": 1955, "aum_usd": 3.8e9, "cum_inflow_usd": 1.96e9},
+        {"name": "Bitwise BITB", "ticker": "BITB", "flow_btc": 2090, "aum_usd": 3.1e9, "cum_inflow_usd": 2.09e9},
+        {"name": "ARK 21Shares ARKB", "ticker": "ARKB", "flow_btc": 1580, "aum_usd": 3.0e9, "cum_inflow_usd": 1.58e9},
+        {"name": "VanEck HODL", "ticker": "HODL", "flow_btc": 1180, "aum_usd": 1.3e9, "cum_inflow_usd": 1.18e9},
+        {"name": "Others", "ticker": "—", "flow_btc": 0, "aum_usd": 1.8e9, "cum_inflow_usd": 0.0e9},
     ]
 
 # 8. On-chain summary — aggregate what we can from free sources
@@ -396,6 +396,40 @@ async def get_dashboard():
         "treasury": safe(results[4]),
         "etf_flows": safe(results[5]),
         "timestamp": int(time.time()),
+    }
+
+
+# 10. Supply/Demand Pressure endpoint
+@app.get("/api/supply-demand")
+async def get_supply_demand():
+    """Supply/demand pressure analysis using curated data (April 1, 2026)."""
+    daily_supply = 450  # Post-halving: 3.125 BTC × ~144 blocks/day
+    etf_daily_avg = 1225  # March total ~38,000 BTC / 31 days
+    corporate_daily_avg = 480  # Strategy paused, but Metaplanet/others still buying
+    exchange_outflow_daily = 300  # ~77,000 BTC over ~20 days (Feb 24 - Mar 14) net additional
+    extra_miner_selling = 167  # ~15,000 BTC collectively in Q1 / 90 days
+
+    total_demand = etf_daily_avg + corporate_daily_avg + exchange_outflow_daily - extra_miner_selling
+    deficit = total_demand - daily_supply
+    exchange_reserves = 2160000
+    runway_months = round(exchange_reserves / (deficit * 30), 1) if deficit > 0 else 999
+
+    return {
+        "daily_supply_btc": daily_supply,
+        "daily_demand_btc": total_demand,
+        "daily_deficit_btc": deficit,
+        "exchange_reserves_btc": exchange_reserves,
+        "runway_months": runway_months,
+        "trend": "narrowing",
+        "trend_label": "Deficit Narrowing",
+        "trend_explanation": "ETF inflows slowed last week ($296M outflow). Strategy paused 13-week buying streak.",
+        "components": {
+            "etf_daily_avg": etf_daily_avg,
+            "corporate_daily_avg": corporate_daily_avg,
+            "exchange_outflow_daily": exchange_outflow_daily,
+            "extra_miner_selling": extra_miner_selling
+        },
+        "updated": "April 1, 2026"
     }
 
 

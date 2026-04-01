@@ -181,6 +181,22 @@ tr:hover { background: var(--bg-card-hover); }
 .footer a { color: var(--text-muted); text-decoration: none; }
 .footer a:hover { color: var(--text-secondary); }
 
+/* Supply/Demand Balance Bar */
+.balance-bar { display: flex; height: 40px; border-radius: 10px; overflow: hidden; margin: 16px 0 8px; }
+.bar-supply { background: var(--red); display: flex; align-items: center; justify-content: center; transition: width 0.6s ease; }
+.bar-demand { background: var(--green); display: flex; align-items: center; justify-content: center; transition: width 0.6s ease; }
+.bar-supply span, .bar-demand span { font-size: 0.75rem; font-weight: 700; color: #fff; padding: 0 8px; white-space: nowrap; }
+
+/* Supply/Demand Cards Grid */
+.sd-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.sd-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.sd-card-title { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.sd-big-num { font-size: 1.8rem; font-weight: 800; margin: 4px 0; }
+.sd-detail { font-size: 0.85rem; color: var(--text-secondary); margin: 3px 0; }
+.sd-trend-arrow { font-size: 2rem; margin-right: 8px; vertical-align: middle; }
+.sd-components { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.sd-chip { font-size: 0.7rem; padding: 2px 8px; border-radius: 8px; background: rgba(148,163,184,0.1); color: var(--text-secondary); }
+
 /* Mobile */
 @media (max-width: 768px) {
     .header h1 { font-size: 1.3rem; }
@@ -194,6 +210,9 @@ tr:hover { background: var(--bg-card-hover); }
     .results-grid { grid-template-columns: 1fr; }
     .section { padding: 24px 0; }
     .section-title { font-size: 1.15rem; }
+    .sd-cards { grid-template-columns: 1fr; }
+    .sd-big-num { font-size: 1.4rem; }
+    .bar-supply span, .bar-demand span { font-size: 0.65rem; }
     .currency-pill { padding: 3px 8px; font-size: 0.7rem; }
 }
 @media (max-width: 480px) {
@@ -206,6 +225,7 @@ tr:hover { background: var(--bg-card-hover); }
 
 <!-- NAV -->
 <nav class="nav"><div class="nav-inner">
+    <a class="nav-link" onclick="smoothScrollTo('supply-demand')">Supply/Demand</a>
     <a class="nav-link" onclick="smoothScrollTo('flows')">Net Flows</a>
     <a class="nav-link" onclick="smoothScrollTo('reserves')">Reserves</a>
     <a class="nav-link" onclick="smoothScrollTo('institutional')">Institutional</a>
@@ -233,6 +253,42 @@ tr:hover { background: var(--bg-card-hover); }
     <div class="api-badge badge-live" id="apiBadge">&#9889; CONNECTING...</div>
     <div class="last-updated" id="lastUpdated">Last updated: loading...</div>
 </header>
+
+<!-- 0. SUPPLY/DEMAND PRESSURE -->
+<div class="section" id="supply-demand">
+    <h2 class="section-title"><span class="icon">&#9878;</span> Supply/Demand Pressure</h2>
+    <div class="sd-cards">
+        <!-- Card 1: Daily Balance Meter -->
+        <div class="sd-card" id="sdBalanceCard">
+            <div class="sd-card-title">Daily Supply/Demand Balance</div>
+            <div class="sd-detail" id="sdSupplyLine">Supply: <span class="shimmer shimmer-text" style="width:80px;">&nbsp;</span></div>
+            <div class="sd-detail" id="sdDemandLine">Est. Demand: <span class="shimmer shimmer-text" style="width:80px;">&nbsp;</span></div>
+            <div class="sd-big-num positive" id="sdDeficitValue"><span class="shimmer shimmer-text" style="width:160px;height:1.8rem;">&nbsp;</span></div>
+            <div class="balance-bar" id="sdBalanceBar">
+                <div class="bar-supply" style="width:20%"><span>Supply: 450</span></div>
+                <div class="bar-demand" style="width:80%"><span>Demand: ~1,838</span></div>
+            </div>
+            <div class="sd-components" id="sdComponents"></div>
+        </div>
+        <!-- Card 2: Liquid Supply Runway -->
+        <div class="sd-card" id="sdRunwayCard">
+            <div class="sd-card-title">Liquid Supply Runway</div>
+            <div class="sd-detail" id="sdReserves">Exchange Reserves: <span class="shimmer shimmer-text" style="width:80px;">&nbsp;</span></div>
+            <div class="sd-big-num" id="sdRunwayValue" style="color:var(--green);"><span class="shimmer shimmer-text" style="width:140px;height:1.8rem;">&nbsp;</span></div>
+            <div class="sd-detail" id="sdRunwayNote">Based on current net demand pace</div>
+        </div>
+        <!-- Card 3: 30-Day Trend -->
+        <div class="sd-card" id="sdTrendCard">
+            <div class="sd-card-title">30-Day Trend</div>
+            <div class="sd-big-num" id="sdTrendLabel" style="color:var(--amber);"><span class="shimmer shimmer-text" style="width:140px;height:1.8rem;">&nbsp;</span></div>
+            <div class="sd-detail" id="sdTrendExplanation"><span class="shimmer shimmer-text" style="width:180px;">&nbsp;</span></div>
+        </div>
+    </div>
+    <div class="context-card" style="border-left-color: var(--purple);">
+        <h4 style="color: var(--purple);">&#128214; How to Read This</h4>
+        <p>This gauge estimates the daily supply/demand imbalance for Bitcoin. Supply is fixed at ~450 BTC/day (post-halving block reward). Demand is estimated from ETF net inflows, corporate treasury purchases, and net exchange outflows. When demand exceeds supply, a structural deficit exists &mdash; meaning more Bitcoin is being absorbed than created, which tends to push prices higher over time. The liquid supply runway shows how long exchange reserves would last at the current absorption rate. Data is based on 30-day rolling averages from public sources.</p>
+    </div>
+</div>
 
 <!-- 1. NET FLOWS -->
 <div class="section" id="flows">
@@ -286,7 +342,7 @@ tr:hover { background: var(--bg-card-hover); }
                 <tr><td colspan="5" class="shimmer" style="height:40px;">&nbsp;</td></tr>
             </tbody>
         </table>
-        <div class="treasury-note">Data as of March 27, 2026 &bull; Source: BitcoinTreasuries.net</div>
+        <div class="treasury-note">Data as of April 1, 2026 &bull; Source: BitcoinTreasuries.net</div>
     </div>
 </div>
 
@@ -917,17 +973,18 @@ async function fetchETFFlows() {
     document.getElementById('allEtfFlow').className = 'info-value ' + (totalNet >= 0 ? 'positive' : 'negative');
     document.getElementById('allEtfSub').textContent = '30-day aggregate';
     
-    // Net flows section aggregate
-    document.getElementById('etfInflows').textContent = '+' + fmtBTC(totalNet) + ' BTC';
-    document.getElementById('etfInflowsSub').textContent = formatCurrencyValue(totalNet * price) + ' at current price';
+    // Net flows section — 30-day ETF inflows (March 2026: ~38,000 BTC reaccumulated)
+    var monthlyEtfBtc = 38000;
+    document.getElementById('etfInflows').textContent = '+' + fmtBTC(monthlyEtfBtc) + ' BTC';
+    document.getElementById('etfInflowsSub').textContent = formatCurrencyValue(monthlyEtfBtc * price) + ' at current price';
     
     // Corporate buys, exchange outflows, miner selling (curated — require CryptoQuant for live)
-    document.getElementById('corpBuys').textContent = '+23,400 BTC';
-    document.getElementById('corpBuysSub').textContent = 'Strategy, Metaplanet, Strive';
+    document.getElementById('corpBuys').textContent = '+3,600 BTC';
+    document.getElementById('corpBuysSub').textContent = 'Strategy paused; Metaplanet, others active';
     document.getElementById('exchOutflows').textContent = '+77,000 BTC';
     document.getElementById('exchOutflowsSub').textContent = 'Accelerating self-custody trend';
-    document.getElementById('minerSelling').textContent = String.fromCharCode(8722) + '8,200 BTC';
-    document.getElementById('minerSellingSub').textContent = 'MARA selling + revenue pressure';
+    document.getElementById('minerSelling').textContent = String.fromCharCode(8722) + '18,500 BTC';
+    document.getElementById('minerSellingSub').textContent = 'Issuance + miner treasury selling';
 }
 
 // ── Treasury ─────────────────────────────────────────────────────────
@@ -987,7 +1044,7 @@ registerChartSection('flowsChart', function() {
     var totalNet = etfs.reduce(function(s,e) { return s + (e.flow_btc || 0); }, 0);
     var isMobile = window.innerWidth < 768;
     var cats = isMobile ? ['ETFs', 'Corporate', 'Exch Outflow', 'Miners'] : ['Spot ETFs', 'Corporate Buys', 'Exchange Outflow', 'Miner Selling'];
-    var vals = [totalNet, 18300, 22500, -6800];
+    var vals = [38000, 3600, 77000, -18500];
     var colors = vals.map(function(v) { return v >= 0 ? '#22c55e' : '#ef4444'; });
     
     safePlot('flowsChart', [{
@@ -1013,8 +1070,8 @@ registerChartSection('reservesChart', function() {
     }
     
     // Update stats
-    document.getElementById('totalExch').textContent = '2,200,000 BTC';
-    document.getElementById('totalExchSub').textContent = '11.1% of circulating supply (~19.84M BTC mined)';
+    document.getElementById('totalExch').textContent = '2,160,000 BTC';
+    document.getElementById('totalExchSub').textContent = '10.9% of circulating supply (~19.84M BTC mined)';
     document.getElementById('exchChange').textContent = '−77,000 BTC';
     document.getElementById('exchChangeSub').textContent = 'Accelerating outflows (Feb–Mar)';
     document.getElementById('exchTrend').textContent = 'Bullish Signal';
@@ -1292,9 +1349,79 @@ function calculateDCA() {
 }
 
 // ══════════════════════════════════════════════════════════════════════
+// SUPPLY/DEMAND PRESSURE
+// ══════════════════════════════════════════════════════════════════════
+async function fetchSupplyDemand() {
+    var result = await apiFetch('/api/supply-demand');
+    if (result.error || !result.data) return;
+    var d = result.data;
+    _state.supplyDemand = d;
+
+    // Card 1: Daily Balance Meter
+    document.getElementById('sdSupplyLine').textContent = 'Supply: ~' + d.daily_supply_btc.toLocaleString() + ' BTC/day';
+    document.getElementById('sdDemandLine').textContent = 'Est. Demand: ~' + d.daily_demand_btc.toLocaleString() + ' BTC/day';
+
+    var deficitEl = document.getElementById('sdDeficitValue');
+    if (d.daily_deficit_btc > 0) {
+        deficitEl.textContent = 'Daily Deficit: ' + d.daily_deficit_btc.toLocaleString() + ' BTC';
+        deficitEl.className = 'sd-big-num positive';
+    } else {
+        deficitEl.textContent = 'Daily Surplus: ' + Math.abs(d.daily_deficit_btc).toLocaleString() + ' BTC';
+        deficitEl.className = 'sd-big-num negative';
+    }
+
+    // Balance bar proportional widths
+    var total = d.daily_supply_btc + d.daily_demand_btc;
+    var supplyPct = Math.round((d.daily_supply_btc / total) * 100);
+    var demandPct = 100 - supplyPct;
+    var barEl = document.getElementById('sdBalanceBar');
+    barEl.innerHTML = '<div class="bar-supply" style="width:' + supplyPct + '%"><span>Supply: ' + d.daily_supply_btc + '</span></div>' +
+        '<div class="bar-demand" style="width:' + demandPct + '%"><span>Demand: ~' + d.daily_demand_btc.toLocaleString() + '</span></div>';
+
+    // Component chips
+    var comp = d.components || {};
+    var chipHTML = '';
+    if (comp.etf_daily_avg) chipHTML += '<span class="sd-chip">ETFs: ' + comp.etf_daily_avg.toLocaleString() + '/day</span>';
+    if (comp.corporate_daily_avg) chipHTML += '<span class="sd-chip">Corporate: ' + comp.corporate_daily_avg.toLocaleString() + '/day</span>';
+    if (comp.exchange_outflow_daily) chipHTML += '<span class="sd-chip">Exch Outflows: ' + comp.exchange_outflow_daily.toLocaleString() + '/day</span>';
+    if (comp.extra_miner_selling) chipHTML += '<span class="sd-chip" style="color:var(--red);">Miner Selling: \u2212' + comp.extra_miner_selling.toLocaleString() + '/day</span>';
+    document.getElementById('sdComponents').innerHTML = chipHTML;
+
+    // Card 2: Liquid Supply Runway
+    document.getElementById('sdReserves').textContent = 'Exchange Reserves: ' + (d.exchange_reserves_btc / 1e6).toFixed(2) + 'M BTC';
+    var runwayEl = document.getElementById('sdRunwayValue');
+    var runwayMonths = d.runway_months;
+    runwayEl.textContent = '~' + Math.round(runwayMonths) + ' months until critical';
+    if (runwayMonths > 24) {
+        runwayEl.style.color = 'var(--green)';
+    } else if (runwayMonths > 12) {
+        runwayEl.style.color = 'var(--amber)';
+    } else {
+        runwayEl.style.color = 'var(--red)';
+    }
+
+    // Card 3: 30-Day Trend
+    var trendEl = document.getElementById('sdTrendLabel');
+    var arrowMap = { narrowing: '\u2198', widening: '\u2197', stable: '\u2192', surplus: '\u2193' };
+    var arrow = arrowMap[d.trend] || '\u2192';
+    trendEl.innerHTML = '<span class="sd-trend-arrow">' + arrow + '</span>' + (d.trend_label || 'Stable');
+    // Color based on trend
+    if (d.trend === 'narrowing') {
+        trendEl.style.color = 'var(--amber)';
+    } else if (d.trend === 'widening') {
+        trendEl.style.color = 'var(--green)';
+    } else if (d.trend === 'surplus') {
+        trendEl.style.color = 'var(--red)';
+    } else {
+        trendEl.style.color = 'var(--text-secondary)';
+    }
+    document.getElementById('sdTrendExplanation').textContent = d.trend_explanation || '';
+}
+
+// ══════════════════════════════════════════════════════════════════════
 // NAV HIGHLIGHT ON SCROLL
 // ══════════════════════════════════════════════════════════════════════
-var sectionIds = ['flows','reserves','institutional','treasury','retail','cumulative','fear','halving','onchain','powerlaw','dca'];
+var sectionIds = ['supply-demand','flows','reserves','institutional','treasury','retail','cumulative','fear','halving','onchain','powerlaw','dca'];
 window.addEventListener('scroll', function() {
     var scrollPos = window.scrollY + 80;
     sectionIds.forEach(function(id) {
@@ -1319,6 +1446,7 @@ async function init() {
         fetchHashrate(),
         fetchETFFlows(),
         fetchTreasury(),
+        fetchSupplyDemand(),
     ]);
     
     // Initialize lazy chart rendering
@@ -1336,6 +1464,7 @@ async function init() {
         fetchHashrate();
         fetchETFFlows();
         fetchTreasury();
+        fetchSupplyDemand();
         // Re-render visible charts
         Object.keys(_chartRendered).forEach(function(id) {
             _chartRendered[id] = false;
